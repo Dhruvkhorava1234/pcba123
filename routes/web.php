@@ -34,21 +34,24 @@ Route::get('/membership', function () {
     return view('membership');
 })->name('membership');
 
-Route::get('/membership/apply', function () {
-    return view('membership-apply');
-})->name('membership.apply');
+Route::get('/membership/apply', [\App\Http\Controllers\MembershipApplicationController::class, 'showForm'])->name('membership.apply');
+Route::post('/membership/apply', [\App\Http\Controllers\MembershipApplicationController::class, 'store'])->name('membership.apply.store');
+Route::post('/membership/payment/callback', [\App\Http\Controllers\MembershipApplicationController::class, 'paymentCallback'])->name('membership.payment.callback');
 
-Route::get('/membership/search', function () {
-    return view('membership-search');
-})->name('membership.search');
+Route::get('/membership/search', [\App\Http\Controllers\MembershipDirectoryController::class, 'index'])->name('membership.search');
+Route::get('/membership/search/query', [\App\Http\Controllers\MembershipDirectoryController::class, 'search'])->name('membership.search.query');
 
 Route::get('/associations', function () {
     return view('associations');
 })->name('associations');
 
 Route::get('/gallery', function () {
-    $galleryImages = \App\Models\GalleryImage::latest()->get();
-    return view('gallery', compact('galleryImages'));
+    $folders = \App\Models\GalleryFolder::with(['images' => function ($q) {
+        $q->latest();
+    }])->withCount('images')->latest()->get();
+    
+    $galleryImages = \App\Models\GalleryImage::with('folder')->latest()->get();
+    return view('gallery', compact('folders', 'galleryImages'));
 })->name('gallery');
 
 Route::get('/events', function () {
@@ -102,6 +105,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/events/{event}', [\App\Http\Controllers\AdminDashboardController::class, 'destroyEvent'])->name('events.destroy');
     Route::post('/gallery', [\App\Http\Controllers\AdminDashboardController::class, 'storeGallery'])->name('gallery.store');
     Route::delete('/gallery/{galleryImage}', [\App\Http\Controllers\AdminDashboardController::class, 'destroyGallery'])->name('gallery.destroy');
+    Route::post('/gallery/folders', [\App\Http\Controllers\AdminDashboardController::class, 'storeFolder'])->name('gallery.folders.store');
+    Route::delete('/gallery/folders/{folder}', [\App\Http\Controllers\AdminDashboardController::class, 'destroyFolder'])->name('gallery.folders.destroy');
     Route::delete('/members/{member}', [\App\Http\Controllers\AdminDashboardController::class, 'destroyMember'])->name('members.destroy');
     Route::patch('/passes/{pass}/status', [\App\Http\Controllers\AdminDashboardController::class, 'updatePassStatus'])->name('passes.status');
     // Circulars

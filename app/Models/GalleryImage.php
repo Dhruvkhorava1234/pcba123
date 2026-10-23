@@ -11,8 +11,14 @@ class GalleryImage extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'folder_id',
         'title',
         'image_path',
         'category',
     ];
+
+    public function folder()
+    {
+        return $this->belongsTo(GalleryFolder::class, 'folder_id');
+    }
 }

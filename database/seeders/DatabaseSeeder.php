@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\CfsPass;
 use App\Models\Contact;
 use App\Models\Event;
+use App\Models\GalleryFolder;
 use App\Models\GalleryImage;
 use App\Models\Grievance;
 use App\Models\Invoice;
@@ -24,6 +25,7 @@ class DatabaseSeeder extends Seeder
         Contact::withTrashed()->forceDelete();
         CfsPass::withTrashed()->forceDelete();
         GalleryImage::withTrashed()->forceDelete();
+        GalleryFolder::withTrashed()->forceDelete();
         Event::withTrashed()->forceDelete();
         User::withTrashed()->forceDelete();
         DB::statement('SET FOREIGN_KEY_CHECKS=1');
@@ -422,18 +424,36 @@ class DatabaseSeeder extends Seeder
             Event::create($e);
         }
 
-        // ─── 7. GALLERY IMAGES ─────────────────────────────────────────────────
+        // ─── 7. GALLERY FOLDERS & IMAGES ───────────────────────────────────────
+        $fPort = GalleryFolder::create([
+            'name' => 'Port Operations & Terminals',
+            'slug' => 'port-operations-terminals',
+            'description' => 'Vessel operations, gantry cranes, container yard and port infrastructure.',
+        ]);
+
+        $fEvents = GalleryFolder::create([
+            'name' => 'Events & Delegations',
+            'slug' => 'events-delegations',
+            'description' => 'Conferences, stakeholder meetings and official trade delegations.',
+        ]);
+
+        $fTraining = GalleryFolder::create([
+            'name' => 'Workshops & Training',
+            'slug' => 'workshops-training',
+            'description' => 'Skill enhancement sessions and customs compliance workshops.',
+        ]);
+
         $galleryData = [
-            ['title' => 'Presidential Address & Executive Committee', 'category' => 'events',    'image_path' => 'images/president.jpeg'],
-            ['title' => 'Vessel Operations & Gantry Cranes at Quayside', 'category' => 'port',  'image_path' => 'images/banner.jpg'],
-            ['title' => 'Deep-Draft Maritime Vessel Navigation',          'category' => 'port',  'image_path' => 'images/ship-bow-down.jpg'],
-            ['title' => 'Rail Rake Movement & Multimodal Buffer Yard',    'category' => 'port',  'image_path' => 'images/banner-vertical.jpg'],
+            ['folder_id' => $fEvents->id, 'title' => 'Presidential Address & Executive Committee', 'category' => 'events',    'image_path' => 'images/president.jpeg'],
+            ['folder_id' => $fPort->id,   'title' => 'Vessel Operations & Gantry Cranes at Quayside', 'category' => 'port',  'image_path' => 'images/banner.jpg'],
+            ['folder_id' => $fPort->id,   'title' => 'Deep-Draft Maritime Vessel Navigation',          'category' => 'port',  'image_path' => 'images/ship-bow-down.jpg'],
+            ['folder_id' => $fPort->id,   'title' => 'Rail Rake Movement & Multimodal Buffer Yard',    'category' => 'port',  'image_path' => 'images/banner-vertical.jpg'],
         ];
 
         foreach ($galleryData as $g) {
             GalleryImage::create($g);
         }
 
-        $this->command->info('✅ All tables seeded: 1 admin + 5 members + 6 CFS passes + 8 grievances + 5 contacts + 9 invoices + 5 events + 4 gallery images.');
+        $this->command->info('✅ All tables seeded: 1 admin + 5 members + 6 CFS passes + 8 grievances + 5 contacts + 9 invoices + 5 events + 3 folders + 4 gallery images.');
     }
 }

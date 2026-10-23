@@ -134,7 +134,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <div class="text-muted small text-uppercase fw-bold">Gallery Photos</div>
-                            <div class="h2 fw-bold text-dark mb-0">{{ $galleryCount }}</div>
+                            <div class="h2 fw-bold text-dark mb-0">{{ $galleryCount }} <span class="fs-6 fw-normal text-muted">in {{ $foldersCount ?? 0 }} folders</span></div>
                         </div>
                         <div class="w-12 h-12 rounded-3 bg-light text-primary fs-3 d-flex align-items-center justify-content-center p-3">
                             <i class="bi bi-images"></i>
@@ -295,36 +295,110 @@
                         </div>
                     </div>
 
-                    <!-- TAB 3: GALLERY UPLOADS -->
+                    <!-- TAB 3: GALLERY & FOLDERS -->
                     <div class="tab-pane fade {{ $curTab === 'gallery' ? 'show active' : '' }}" id="tab-gallery" role="tabpanel">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h4 class="h5 fw-bold text-dark mb-0">Gallery Media Library</h4>
-                            <button type="button" class="btn btn-sm text-white fw-bold" style="background-color: #0b2530;" data-bs-toggle="modal" data-bs-target="#uploadGalleryModal">
-                                <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload New Image
-                            </button>
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+                            <div>
+                                <h4 class="h5 fw-bold text-dark mb-1">Gallery Media & Folders</h4>
+                                <p class="text-muted small mb-0">Organize photos into folders and upload new media to the public gallery.</p>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary fw-bold px-3" data-bs-toggle="modal" data-bs-target="#createFolderModal">
+                                    <i class="bi bi-folder-plus me-1"></i> New Folder
+                                </button>
+                                <button type="button" class="btn btn-sm text-white fw-bold px-3" style="background-color: #0b2530;" data-bs-toggle="modal" data-bs-target="#uploadGalleryModal">
+                                    <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload Image
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="row g-3">
-                            @forelse($galleryImages as $img)
-                                <div class="col-sm-6 col-md-4 col-lg-3">
-                                    <div class="card h-100 border shadow-sm rounded-3 overflow-hidden">
-                                        <div style="height: 160px; background: #000;">
-                                            <img src="{{ asset($img->image_path) }}" class="w-100 h-100 object-fit-cover" alt="{{ $img->title }}">
+                        <!-- FOLDERS SECTION -->
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-dark mb-3 d-flex align-items-center">
+                                <i class="bi bi-folder2-open text-warning me-2 fs-5"></i>
+                                Folders ({{ $galleryFolders->count() }})
+                            </h6>
+                            <div class="row g-3">
+                                @forelse($galleryFolders as $f)
+                                    <div class="col-sm-6 col-md-4 col-xl-3">
+                                        <div class="card h-100 border shadow-sm rounded-3 overflow-hidden bg-white">
+                                            <div class="p-3 d-flex align-items-start justify-content-between border-bottom bg-light">
+                                                <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                                    <div class="bg-warning-subtle text-warning-emphasis p-2 rounded-2">
+                                                        <i class="bi bi-folder-fill fs-4"></i>
+                                                    </div>
+                                                    <div class="overflow-hidden">
+                                                        <div class="fw-bold text-dark text-truncate" title="{{ $f->name }}">{{ $f->name }}</div>
+                                                        <span class="badge bg-secondary-subtle text-secondary small">{{ $f->images_count }} {{ Str::plural('photo', $f->images_count) }}</span>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn btn-link text-danger p-0 ms-2" title="Delete Folder" onclick="triggerAnimatedDelete('{{ route('admin.gallery.folders.destroy', $f->id) }}', 'Folder: {{ addslashes($f->name) }}')">
+                                                    <i class="bi bi-trash3"></i>
+                                                </button>
+                                            </div>
+                                            <div class="p-3">
+                                                <p class="text-secondary small mb-2 text-truncate-2" style="font-size: 0.8rem; min-height: 2.4em;">
+                                                    {{ $f->description ?: 'No description provided.' }}
+                                                </p>
+                                                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                                    <span class="text-muted" style="font-size: 0.72rem;">Slug: {{ $f->slug }}</span>
+                                                    <button type="button" class="btn btn-sm btn-link text-decoration-none fw-bold p-0 text-primary" style="font-size: 0.8rem;" onclick="prefillUploadFolder('{{ $f->id }}', '{{ addslashes($f->name) }}')">
+                                                        <i class="bi bi-plus-circle me-1"></i> Add Photo
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="card-body p-3">
-                                            <div class="badge bg-light text-dark border mb-1">{{ $img->category }}</div>
-                                            <h6 class="card-title fw-bold text-dark text-truncate mb-2" title="{{ $img->title }}">{{ $img->title }}</h6>
-                                            <button type="button" class="btn btn-sm btn-outline-danger w-100 py-1" onclick="triggerAnimatedDelete('{{ route('admin.gallery.destroy', $img->id) }}', '{{ addslashes($img->title ?: 'Gallery Photo') }}')">
-                                                <i class="bi bi-trash3 me-1"></i> Delete
+                                    </div>
+                                @empty
+                                    <div class="col-12">
+                                        <div class="alert alert-light border text-center py-4 mb-0">
+                                            <i class="bi bi-folder-plus fs-2 text-muted d-block mb-1"></i>
+                                            <div class="fw-semibold text-dark">No folders created yet</div>
+                                            <p class="text-muted small mb-2">Create folders to organize photos for the public gallery.</p>
+                                            <button type="button" class="btn btn-sm btn-outline-primary fw-bold" data-bs-toggle="modal" data-bs-target="#createFolderModal">
+                                                <i class="bi bi-plus me-1"></i> Create First Folder
                                             </button>
                                         </div>
                                     </div>
-                                </div>
-                            @empty
-                                <div class="col-12 text-center py-5 text-muted">
-                                    No gallery images uploaded yet. Click 'Upload New Image' above.
-                                </div>
-                            @endforelse
+                                @endforelse
+                            </div>
+                        </div>
+
+                        <!-- ALL PHOTOS GRID -->
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold text-dark mb-0 d-flex align-items-center">
+                                    <i class="bi bi-images text-primary me-2 fs-5"></i>
+                                    Uploaded Photos ({{ $galleryImages->count() }})
+                                </h6>
+                            </div>
+
+                            <div class="row g-3">
+                                @forelse($galleryImages as $img)
+                                    <div class="col-sm-6 col-md-4 col-lg-3">
+                                        <div class="card h-100 border shadow-sm rounded-3 overflow-hidden">
+                                            <div class="position-relative overflow-hidden" style="height: 160px; background: #000;">
+                                                <img src="{{ asset($img->image_path) }}" class="w-100 h-100 object-fit-cover" alt="{{ $img->title }}">
+                                                @if($img->folder)
+                                                    <span class="position-absolute top-0 start-0 m-2 badge bg-dark bg-opacity-75 text-white" style="font-size: 0.7rem;">
+                                                        <i class="bi bi-folder-fill me-1 text-warning"></i> {{ $img->folder->name }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <div class="card-body p-3">
+                                                <h6 class="card-title fw-bold text-dark text-truncate mb-2" title="{{ $img->title }}">{{ $img->title }}</h6>
+                                                <button type="button" class="btn btn-sm btn-outline-danger w-100 py-1" onclick="triggerAnimatedDelete('{{ route('admin.gallery.destroy', $img->id) }}', '{{ addslashes($img->title ?: 'Gallery Photo') }}')">
+                                                    <i class="bi bi-trash3 me-1"></i> Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="col-12 text-center py-5 text-muted">
+                                        No gallery images uploaded yet. Click 'Upload Image' above.
+                                    </div>
+                                @endforelse
+                            </div>
                         </div>
                     </div>
 
@@ -567,6 +641,42 @@
     </div>
 </div>
 
+<!-- Modal: Create Gallery Folder -->
+<div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ route('admin.gallery.folders.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="createFolderModalLabel">
+                        <i class="bi bi-folder-plus text-warning me-2"></i>Create New Gallery Folder
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Folder Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="name" required placeholder="e.g. Annual General Meeting 2026">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Folder Description</label>
+                        <textarea class="form-control" name="description" rows="3" placeholder="Brief summary of photos in this folder..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Cover Image <span class="text-muted">(Optional)</span></label>
+                        <input type="file" class="form-control" name="cover_image" accept="image/*">
+                        <div class="text-muted small mt-1">If not uploaded, the first uploaded photo in this folder will automatically be used.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn text-white fw-bold" style="background-color: #0b2530;">Create Folder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: Upload Gallery Image -->
 <div class="modal fade" id="uploadGalleryModal" tabindex="-1" aria-labelledby="uploadGalleryModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -574,31 +684,38 @@
             <form action="{{ route('admin.gallery.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold" id="uploadGalleryModalLabel">Upload New Gallery Photo</h5>
+                    <h5 class="modal-title fw-bold" id="uploadGalleryModalLabel">
+                        <i class="bi bi-images text-primary me-2"></i>Upload Gallery Photos
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Photo Title</label>
-                        <input type="text" class="form-control" name="title" placeholder="e.g. Pipavav Terminal Berth Visit">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Category <span class="text-danger">*</span></label>
-                        <select class="form-select" name="category" required>
-                            <option value="Events & Delegations">Events & Delegations</option>
-                            <option value="Workshops & Training">Workshops & Training</option>
-                            <option value="Port Operations & Terminals" selected>Port Operations & Terminals</option>
+                        <label class="form-label small fw-bold">Select Folder <span class="text-primary fw-normal">(Recommended)</span></label>
+                        <select class="form-select" name="folder_id" id="uploadFolderSelect">
+                            <option value="">-- No Folder (Unassigned) --</option>
+                            @foreach($galleryFolders as $f)
+                                <option value="{{ $f->id }}">{{ $f->name }}</option>
+                            @endforeach
                         </select>
+                        <div class="text-muted small mt-1">Assign photos to a folder for clean folder-based gallery browsing.</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Choose Image File <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control" name="image" accept="image/*,.jpg,.jpeg,.png,.webp,.svg,.gif,.bmp,.avif,.ico,.tiff,.tif" required>
-                        <div class="text-muted small mt-1">Accepts all image formats (JPG, PNG, WEBP, SVG, GIF, AVIF, BMP, etc.)</div>
+                        <label class="form-label small fw-bold">Choose Photos <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" name="images[]" multiple accept="image/*,.jpg,.jpeg,.png,.webp,.svg,.gif,.bmp,.avif,.ico,.tiff,.tif" required id="galleryMultiInput" onchange="previewSelectedFiles(this)">
+                        <div class="d-flex justify-content-between align-items-center mt-1">
+                            <span class="text-muted small">You can select multiple photos at once.</span>
+                            <span class="badge bg-primary-subtle text-primary small" id="selectedFilesCount">0 selected</span>
+                        </div>
+                    </div>
+                    <div id="selectedFilesPreview" class="d-flex flex-wrap gap-2 mt-2 pt-2 border-top d-none" style="max-height: 140px; overflow-y: auto;">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn text-white fw-bold" style="background-color: #0b2530;">Upload Image</button>
+                    <button type="submit" class="btn text-white fw-bold" style="background-color: #0b2530;">
+                        <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload Photos
+                    </button>
                 </div>
             </form>
         </div>
@@ -644,6 +761,53 @@ function triggerAnimatedDelete(actionUrl, itemName) {
     
     const myModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
     myModal.show();
+}
+
+function prefillUploadFolder(folderId, folderName) {
+    const select = document.getElementById('uploadFolderSelect');
+    if (select) {
+        select.value = folderId;
+    }
+    const myModal = new bootstrap.Modal(document.getElementById('uploadGalleryModal'));
+    myModal.show();
+}
+
+function previewSelectedFiles(input) {
+    const previewContainer = document.getElementById('selectedFilesPreview');
+    const countBadge = document.getElementById('selectedFilesCount');
+    if (!previewContainer || !countBadge) return;
+
+    previewContainer.innerHTML = '';
+    const files = input.files;
+    countBadge.innerText = files.length + ' selected';
+
+    if (files.length > 0) {
+        previewContainer.classList.remove('d-none');
+        Array.from(files).slice(0, 12).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const thumb = document.createElement('img');
+                    thumb.src = e.target.result;
+                    thumb.className = 'rounded border shadow-sm';
+                    thumb.style.width = '42px';
+                    thumb.style.height = '42px';
+                    thumb.style.objectFit = 'cover';
+                    thumb.title = file.name;
+                    previewContainer.appendChild(thumb);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        if (files.length > 12) {
+            const moreBadge = document.createElement('span');
+            moreBadge.className = 'badge bg-secondary align-self-center';
+            moreBadge.innerText = '+' + (files.length - 12) + ' more';
+            previewContainer.appendChild(moreBadge);
+        }
+    } else {
+        previewContainer.classList.add('d-none');
+    }
 }
 
 // Preserve active tab on tab clicks via local storage or URL hash

@@ -53,204 +53,81 @@
                 </div>
             </div>
 
-            <!-- Member Directory Listings (Matching layout from your screenshot) -->
+            <!-- Member Directory Listings (Dynamic + Instant 2-Letter Search) -->
             <div class="member-directory-list" id="memberDirectoryList">
-
-                <!-- 1. A B GLOBAL SHIPPING AND LOGISTICS LLP -->
-                <div class="member-entry py-4 border-bottom" data-keywords="a b global shipping and logistics llp gandhidham exim.abglobal@gmail.com 9874047265">
-                    <h3 class="h5 fw-bold text-uppercase mb-1" style="color: #0b1a24;">A B GLOBAL SHIPPING AND LOGISTICS LLP</h3>
-                    <p class="text-secondary small mb-3">2nd Floor,Office No. 211, Plot No. 83, Rishabh Arcade, Sector 8, Gandhidham, Kachchh, Gujarat, 370201</p>
-                    <div class="row g-2 member-meta small">
-                        <div class="col-sm-4 text-secondary">City :</div>
-                        <div class="col-sm-8 fw-semibold text-dark">GANDHIDHAM</div>
-                        <div class="col-sm-4 text-secondary">Email ID :</div>
-                        <div class="col-sm-8 text-primary">exim.abglobal@gmail.com</div>
-                        <div class="col-sm-4 text-secondary">Tel No :</div>
-                        <div class="col-sm-8 text-dark">9874047265</div>
-                        <div class="col-sm-4 text-secondary">Mobile No :</div>
-                        <div class="col-sm-8 text-dark">9874047265</div>
-                        <div class="col-sm-4 text-secondary">Web URL :</div>
-                        <div class="col-sm-8 text-muted">NA</div>
+                @forelse($allMembers as $m)
+                    <div class="member-entry py-4 border-bottom position-relative" data-keywords="{{ strtolower($m['company_name'] . ' ' . $m['city'] . ' ' . $m['email'] . ' ' . $m['mobile_no'] . ' ' . $m['address']) }}">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-1">
+                            <h3 class="h5 fw-bold text-uppercase mb-0" style="color: #0b1a24;">
+                                {{ $m['company_name'] }}
+                            </h3>
+                            @if(!empty($m['is_new']))
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 small">
+                                    <i class="bi bi-patch-check-fill me-1"></i> Newly Enrolled Member
+                                </span>
+                            @else
+                                <span class="badge bg-light text-secondary border px-2.5 py-1 small">
+                                    <i class="bi bi-shield-check me-1 text-primary"></i> Registered Member
+                                </span>
+                            @endif
+                        </div>
+                        <p class="text-secondary small mb-3">{{ $m['address'] }}</p>
+                        <div class="row g-2 member-meta small">
+                            <div class="col-sm-4 text-secondary">City :</div>
+                            <div class="col-sm-8 fw-semibold text-dark">{{ $m['city'] }}</div>
+                            <div class="col-sm-4 text-secondary">Email ID :</div>
+                            <div class="col-sm-8 text-primary">
+                                <a href="mailto:{{ $m['email'] }}" class="text-primary text-decoration-none">{{ $m['email'] }}</a>
+                            </div>
+                            <div class="col-sm-4 text-secondary">Tel No :</div>
+                            <div class="col-sm-8 text-dark">{{ $m['tel_no'] }}</div>
+                            <div class="col-sm-4 text-secondary">Mobile No :</div>
+                            <div class="col-sm-8 text-dark">{{ $m['mobile_no'] }}</div>
+                            <div class="col-sm-4 text-secondary">Web URL :</div>
+                            <div class="col-sm-8">
+                                @if($m['web_url'] && $m['web_url'] !== 'NA')
+                                    <a href="{{ str_starts_with($m['web_url'], 'http') ? $m['web_url'] : 'http://' . $m['web_url'] }}" target="_blank" rel="noopener" class="text-primary text-decoration-none">
+                                        {{ $m['web_url'] }}
+                                    </a>
+                                @else
+                                    <span class="text-muted">NA</span>
+                                @endif
+                            </div>
+                        </div>
                     </div>
-                </div>
-
-                <!-- 2. A B LOGISTICS -->
-                <div class="member-entry py-4 border-bottom" data-keywords="a b logistics gandhidham sohan@ablogistics.in 912836232278 9825239223">
-                    <h3 class="h5 fw-bold text-uppercase mb-1" style="color: #0b1a24;">A B LOGISTICS</h3>
-                    <p class="text-secondary small mb-3">208, 2ND FLOOR, DENA BANK BUILDING, NIRAV CHAMBERS,SECTOR 1/A BANKING CIRCLE/ 370201 NULL</p>
-                    <div class="row g-2 member-meta small">
-                        <div class="col-sm-4 text-secondary">City :</div>
-                        <div class="col-sm-8 fw-semibold text-dark">GANDHIDHAM</div>
-                        <div class="col-sm-4 text-secondary">Email ID :</div>
-                        <div class="col-sm-8 text-primary">sohan@ablogistics.in</div>
-                        <div class="col-sm-4 text-secondary">Tel No :</div>
-                        <div class="col-sm-8 text-dark">912836232278</div>
-                        <div class="col-sm-4 text-secondary">Mobile No :</div>
-                        <div class="col-sm-8 text-dark">9825239223</div>
-                        <div class="col-sm-4 text-secondary">Web URL :</div>
-                        <div class="col-sm-8 text-muted">NA</div>
+                @empty
+                    <div class="py-5 text-center text-muted" id="noMembersFound">
+                        <i class="bi bi-search fs-1 d-block mb-2"></i>
+                        No registered members found.
                     </div>
-                </div>
-
-                <!-- 3. A D MEHTA CLEARING AGENCY -->
-                <div class="member-entry py-4 border-bottom" data-keywords="a d mehta clearing agency gandhidham dmehta@dmehtaconsultants.in 912836232372 9727707825 www.mcxconsultants.in">
-                    <h3 class="h5 fw-bold text-uppercase mb-1" style="color: #0b1a24;">A D MEHTA CLEARING AGENCY</h3>
-                    <p class="text-secondary small mb-3">OFFICE NO. 21, 22, 1ST FLOOR, KASEBA BUILDING, NEAR PNB BANK, GANDHIDHAM / 370230</p>
-                    <div class="row g-2 member-meta small">
-                        <div class="col-sm-4 text-secondary">City :</div>
-                        <div class="col-sm-8 fw-semibold text-dark">GANDHIDHAM</div>
-                        <div class="col-sm-4 text-secondary">Email ID :</div>
-                        <div class="col-sm-8 text-primary">dmehta@dmehtaconsultants.in</div>
-                        <div class="col-sm-4 text-secondary">Tel No :</div>
-                        <div class="col-sm-8 text-dark">912836232372</div>
-                        <div class="col-sm-4 text-secondary">Mobile No :</div>
-                        <div class="col-sm-8 text-dark">9727707825</div>
-                        <div class="col-sm-4 text-secondary">Web URL :</div>
-                        <div class="col-sm-8"><a href="http://www.mcxconsultants.in" target="_blank" rel="noopener" class="text-primary text-decoration-none">http://www.mcxconsultants.in</a></div>
-                    </div>
-                </div>
-
-                <!-- 4. A T P & SONS -->
-                <div class="member-entry py-4 border-bottom" data-keywords="a t p & sons ahmedabad yogesh@atpgroup.in 9825321399 atpgroup.in">
-                    <h3 class="h5 fw-bold text-uppercase mb-1" style="color: #0b1a24;">A T P & SONS</h3>
-                    <p class="text-secondary small mb-3">1ST FLOOR, EATP HOUSE, BEHIND FUN REPUBLIC, S.G. HIGHWAY, SATELLITE, AHMEDABAD 380015</p>
-                    <div class="row g-2 member-meta small">
-                        <div class="col-sm-4 text-secondary">City :</div>
-                        <div class="col-sm-8 fw-semibold text-dark">Ahmedabad</div>
-                        <div class="col-sm-4 text-secondary">Email ID :</div>
-                        <div class="col-sm-8 text-primary">yogesh@atpgroup.in</div>
-                        <div class="col-sm-4 text-secondary">Tel No :</div>
-                        <div class="col-sm-8 text-dark">9825321399</div>
-                        <div class="col-sm-4 text-secondary">Mobile No :</div>
-                        <div class="col-sm-8 text-dark">9825321399</div>
-                        <div class="col-sm-4 text-secondary">Web URL :</div>
-                        <div class="col-sm-8"><a href="http://atpgroup.in" target="_blank" rel="noopener" class="text-primary text-decoration-none">atpgroup.in</a></div>
-                    </div>
-                </div>
-
-                <!-- 5. AANYA EXPRESS CARGO -->
-                <div class="member-entry py-4 border-bottom" data-keywords="aanya express cargo mundra docs.aanya@gmail.com 7227809150 9141190055">
-                    <h3 class="h5 fw-bold text-uppercase mb-1" style="color: #0b1a24;">AANYA EXPRESS CARGO</h3>
-                    <p class="text-secondary small mb-3">Floor No.: First Floor, Building No./Flat No.: IT-125, Name Of Premises/Building: Sadguru Empire-2, Road/Street: Pragpar-Mundra Port Highway, Nearby Landmark: Sadguru Empire, Locality/Sub Locality: Baroi, City/Town/Village: Mundra, District: Kachchh, State: Gujarat, PIN Code: 370421</p>
-                    <div class="row g-2 member-meta small">
-                        <div class="col-sm-4 text-secondary">City :</div>
-                        <div class="col-sm-8 fw-semibold text-dark">Mundra</div>
-                        <div class="col-sm-4 text-secondary">Email ID :</div>
-                        <div class="col-sm-8 text-primary">DOCS.AANYA@GMAIL.COM</div>
-                        <div class="col-sm-4 text-secondary">Tel No :</div>
-                        <div class="col-sm-8 text-dark">7227809150</div>
-                        <div class="col-sm-4 text-secondary">Mobile No :</div>
-                        <div class="col-sm-8 text-dark">9141190055</div>
-                        <div class="col-sm-4 text-secondary">Web URL :</div>
-                        <div class="col-sm-8 text-muted">NA</div>
-                    </div>
-                </div>
-
-                <!-- 6. AARKAY MARINE AGENCIES -->
-                <div class="member-entry py-4 border-bottom" data-keywords="aarkay marine agencies gandhidham info@aarkaygroup.com 912836229507 9825226519 www.aarkaygroup.com">
-                    <h3 class="h5 fw-bold text-uppercase mb-1" style="color: #0b1a24;">AARKAY MARINE AGENCIES</h3>
-                    <p class="text-secondary small mb-3">119, MANI COMPLEX, PLOT NO. 84, SECTOR-8, GANDHIDHAM-KUTCH -GUJARAT-370201</p>
-                    <div class="row g-2 member-meta small">
-                        <div class="col-sm-4 text-secondary">City :</div>
-                        <div class="col-sm-8 fw-semibold text-dark">GANDHIDHAM</div>
-                        <div class="col-sm-4 text-secondary">Email ID :</div>
-                        <div class="col-sm-8 text-primary">info@aarkaygroup.com</div>
-                        <div class="col-sm-4 text-secondary">Tel No :</div>
-                        <div class="col-sm-8 text-dark">912836229507</div>
-                        <div class="col-sm-4 text-secondary">Mobile No :</div>
-                        <div class="col-sm-8 text-dark">9825226519</div>
-                        <div class="col-sm-4 text-secondary">Web URL :</div>
-                        <div class="col-sm-8"><a href="http://www.aarkaygroup.com" target="_blank" rel="noopener" class="text-primary text-decoration-none">http://www.aarkaygroup.com</a></div>
-                    </div>
-                </div>
-
-                <!-- 7. AARVI EXIM SOLUTION LLP -->
-                <div class="member-entry py-4 border-bottom" data-keywords="aarvi exim solution llp mundra rakesh@dlagencygroup.com 912838296341 7574855060">
-                    <h3 class="h5 fw-bold text-uppercase mb-1" style="color: #0b1a24;">AARVI EXIM SOLUTION LLP</h3>
-                    <p class="text-secondary small mb-3">1ST FLOOR, SHOP NO. 141, RATNAKALA ARCADE, PORT ROAD, SHAKTI NAGAR-I, MUNDRA/ 370421</p>
-                    <div class="row g-2 member-meta small">
-                        <div class="col-sm-4 text-secondary">City :</div>
-                        <div class="col-sm-8 fw-semibold text-dark">Mundra</div>
-                        <div class="col-sm-4 text-secondary">Email ID :</div>
-                        <div class="col-sm-8 text-primary">rakesh@dlagencygroup.com</div>
-                        <div class="col-sm-4 text-secondary">Tel No :</div>
-                        <div class="col-sm-8 text-dark">912838296341</div>
-                        <div class="col-sm-4 text-secondary">Mobile No :</div>
-                        <div class="col-sm-8 text-dark">7574855060</div>
-                        <div class="col-sm-4 text-secondary">Web URL :</div>
-                        <div class="col-sm-8 text-muted">NA</div>
-                    </div>
-                </div>
-
-                <!-- 8. AASHIMA TRANSLOGISTICS -->
-                <div class="member-entry py-4 border-bottom" data-keywords="aashima translogistics mumbai hitesh@aashima.net 912225644142 7029014589">
-                    <h3 class="h5 fw-bold text-uppercase mb-1" style="color: #0b1a24;">AASHIMA TRANSLOGISTICS</h3>
-                    <p class="text-secondary small mb-3">23, 2nd floor, Geeta Sadan, J.N.S. Road, Mulund (West), Mumbai 400080</p>
-                    <div class="row g-2 member-meta small">
-                        <div class="col-sm-4 text-secondary">City :</div>
-                        <div class="col-sm-8 fw-semibold text-dark">Mumbai</div>
-                        <div class="col-sm-4 text-secondary">Email ID :</div>
-                        <div class="col-sm-8 text-primary">hitesh@aashima.net</div>
-                        <div class="col-sm-4 text-secondary">Tel No :</div>
-                        <div class="col-sm-8 text-dark">912225644142</div>
-                        <div class="col-sm-4 text-secondary">Mobile No :</div>
-                        <div class="col-sm-8 text-dark">7029014589</div>
-                        <div class="col-sm-4 text-secondary">Web URL :</div>
-                        <div class="col-sm-8 text-muted">NA</div>
-                    </div>
-                </div>
-
-                <!-- 9. AASHIRVAD SHIPPING -->
-                <div class="member-entry py-4 border-bottom" data-keywords="aashirvad shipping kolkata sibaashirvad@yahoo.co.in 03340733071 9830843682">
-                    <h3 class="h5 fw-bold text-uppercase mb-1" style="color: #0b1a24;">AASHIRVAD SHIPPING</h3>
-                    <p class="text-secondary small mb-3">1, N. S. ROAD, MEZZ. FLOOR ROOM NO. 13 700001</p>
-                    <div class="row g-2 member-meta small">
-                        <div class="col-sm-4 text-secondary">City :</div>
-                        <div class="col-sm-8 fw-semibold text-dark">Kolkata</div>
-                        <div class="col-sm-4 text-secondary">Email ID :</div>
-                        <div class="col-sm-8 text-primary">SIBAASHIRVAD@YAHOO.CO.IN</div>
-                        <div class="col-sm-4 text-secondary">Tel No :</div>
-                        <div class="col-sm-8 text-dark">03340733071</div>
-                        <div class="col-sm-4 text-secondary">Mobile No :</div>
-                        <div class="col-sm-8 text-dark">9830843682</div>
-                        <div class="col-sm-4 text-secondary">Web URL :</div>
-                        <div class="col-sm-8 text-muted">NA</div>
-                    </div>
-                </div>
-
-                <!-- 10. AASHIRVAD SHIPPING & ALLIED PVT LTD -->
-                <div class="member-entry py-4 border-bottom" data-keywords="aashirvad shipping & allied pvt ltd ahmedabad ravi@aashirvadgroup.com 07929705458 7926733284 www.aashirvadgroup.com">
-                    <h3 class="h5 fw-bold text-uppercase mb-1" style="color: #0b1a24;">AASHIRVAD SHIPPING & ALLIED PVT LTD</h3>
-                    <p class="text-secondary small mb-3">G F - A-07, NIRMAAN BY SHUBHAM, PLOT NO. 1-4, NANA KAPAYA, S.NO. 34/2, MUNDRA, GUJARAT-370405</p>
-                    <div class="row g-2 member-meta small">
-                        <div class="col-sm-4 text-secondary">City :</div>
-                        <div class="col-sm-8 fw-semibold text-dark">Ahmedabad</div>
-                        <div class="col-sm-4 text-secondary">Email ID :</div>
-                        <div class="col-sm-8 text-primary">ravi@aashirvadgroup.com</div>
-                        <div class="col-sm-4 text-secondary">Tel No :</div>
-                        <div class="col-sm-8 text-dark">07929705458</div>
-                        <div class="col-sm-4 text-secondary">Mobile No :</div>
-                        <div class="col-sm-8 text-dark">7926733284</div>
-                        <div class="col-sm-4 text-secondary">Web URL :</div>
-                        <div class="col-sm-8"><a href="http://www.aashirvadgroup.com" target="_blank" rel="noopener" class="text-primary text-decoration-none">http://www.aashirvadgroup.com/</a></div>
-                    </div>
-                </div>
-
+                @endforelse
             </div>
 
-            <!-- Pagination Matching Reference [ < 1 2 3 4 5 ... 41 > ] -->
-            <div class="mt-4 pt-3 d-flex align-items-center justify-content-start">
+            <div class="py-5 text-center text-muted d-none" id="emptySearchAlert">
+                <i class="bi bi-building-exclamation fs-1 d-block mb-2 text-warning"></i>
+                <h5 class="fw-bold text-dark">No matching members found</h5>
+                <p class="small text-secondary mb-0">Try searching with a different firm name, city, or email address.</p>
+            </div>
+
+            <!-- Dynamic Pagination Bar -->
+            <div class="mt-4 pt-3 d-flex flex-wrap align-items-center justify-content-between gap-3 border-top" id="paginationWrapper">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="small text-muted" id="paginationInfo">
+                        Showing 1 to 5 of {{ count($allMembers) }} members
+                    </div>
+                    <div class="d-flex align-items-center gap-1 small text-muted">
+                        <label for="perPageSelect" class="form-label mb-0 small text-secondary">Per page:</label>
+                        <select id="perPageSelect" class="form-select form-select-sm py-1 px-2 border-secondary-subtle" style="width: auto; font-size: 0.82rem;">
+                            <option value="5" selected>5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                </div>
                 <nav aria-label="Member search pagination">
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#">4</a></li>
-                        <li class="page-item"><a class="page-link" href="#">5</a></li>
-                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                        <li class="page-item"><a class="page-link" href="#">41</a></li>
-                        <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+                    <ul class="pagination pagination-sm mb-0" id="paginationNav">
+                        <!-- Rendered dynamically -->
                     </ul>
                 </nav>
             </div>
@@ -267,42 +144,185 @@
         const searchBtn = document.getElementById('memberSearchBtn');
         const resetBtn = document.getElementById('memberResetBtn');
         const countBadge = document.getElementById('searchCountBadge');
-        const memberEntries = document.querySelectorAll('.member-entry');
+        const container = document.getElementById('memberDirectoryList');
+        const emptyAlert = document.getElementById('emptySearchAlert');
+        const paginationNav = document.getElementById('paginationNav');
+        const paginationInfo = document.getElementById('paginationInfo');
+        const paginationWrapper = document.getElementById('paginationWrapper');
+        const perPageSelect = document.getElementById('perPageSelect');
 
-        function filterMembers() {
-            const query = (searchInput.value || '').trim().toLowerCase();
-            let matches = 0;
+        let currentPage = 1;
+        let perPage = parseInt(perPageSelect ? perPageSelect.value : 5, 10);
+        let totalPages = 1;
+        let debounceTimer = null;
 
-            memberEntries.forEach(entry => {
-                const keywords = (entry.getAttribute('data-keywords') || '').toLowerCase();
-                const text = entry.textContent.toLowerCase();
+        if (perPageSelect) {
+            perPageSelect.addEventListener('change', () => {
+                perPage = parseInt(perPageSelect.value, 10);
+                fetchMembersPage(1);
+            });
+        }
 
-                if (!query || keywords.includes(query) || text.includes(query)) {
-                    entry.style.display = 'block';
-                    matches++;
-                } else {
-                    entry.style.display = 'none';
-                }
+        function renderMembers(members, totalCount, page, totalP, query) {
+            container.innerHTML = '';
+            currentPage = page;
+            totalPages = totalP;
+
+            if (!members || members.length === 0) {
+                emptyAlert.classList.remove('d-none');
+                paginationWrapper.classList.add('d-none');
+                countBadge.textContent = query ? `No members found matching "${query}"` : 'No members found.';
+                return;
+            }
+
+            emptyAlert.classList.add('d-none');
+            paginationWrapper.classList.remove('d-none');
+
+            members.forEach(m => {
+                const isNewBadge = m.is_new 
+                    ? `<span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 small"><i class="bi bi-patch-check-fill me-1"></i> Newly Enrolled Member</span>`
+                    : `<span class="badge bg-light text-secondary border px-2.5 py-1 small"><i class="bi bi-shield-check me-1 text-primary"></i> Registered Member</span>`;
+
+                const webLink = (m.web_url && m.web_url !== 'NA')
+                    ? `<a href="${m.web_url.startsWith('http') ? m.web_url : 'http://' + m.web_url}" target="_blank" rel="noopener" class="text-primary text-decoration-none">${m.web_url}</a>`
+                    : `<span class="text-muted">NA</span>`;
+
+                const entry = document.createElement('div');
+                entry.className = 'member-entry py-4 border-bottom position-relative';
+                entry.innerHTML = `
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-1">
+                        <h3 class="h5 fw-bold text-uppercase mb-0" style="color: #0b1a24;">${m.company_name}</h3>
+                        ${isNewBadge}
+                    </div>
+                    <p class="text-secondary small mb-3">${m.address}</p>
+                    <div class="row g-2 member-meta small">
+                        <div class="col-sm-4 text-secondary">City :</div>
+                        <div class="col-sm-8 fw-semibold text-dark">${m.city}</div>
+                        <div class="col-sm-4 text-secondary">Email ID :</div>
+                        <div class="col-sm-8 text-primary">
+                            <a href="mailto:${m.email}" class="text-primary text-decoration-none">${m.email}</a>
+                        </div>
+                        <div class="col-sm-4 text-secondary">Tel No :</div>
+                        <div class="col-sm-8 text-dark">${m.tel_no}</div>
+                        <div class="col-sm-4 text-secondary">Mobile No :</div>
+                        <div class="col-sm-8 text-dark">${m.mobile_no}</div>
+                        <div class="col-sm-4 text-secondary">Web URL :</div>
+                        <div class="col-sm-8">${webLink}</div>
+                    </div>
+                `;
+                container.appendChild(entry);
             });
 
-            if (query) {
-                countBadge.textContent = `Found ${matches} member firm${matches === 1 ? '' : 's'} matching "${query}"`;
+            // Update Header Counter
+            if (query && query.length >= 2) {
+                countBadge.textContent = `Found ${totalCount} member firm${totalCount === 1 ? '' : 's'} matching "${query}"`;
             } else {
-                countBadge.textContent = 'Showing all registered member listings';
+                countBadge.textContent = `Showing all registered member listings (${totalCount})`;
+            }
+
+            // Update Pagination Info
+            const start = (page - 1) * perPage + 1;
+            const end = Math.min(page * perPage, totalCount);
+            paginationInfo.textContent = `Showing ${start} to ${end} of ${totalCount} members (Page ${page} of ${totalPages})`;
+
+            renderPaginationControls(page, totalPages);
+        }
+
+        function renderPaginationControls(page, totalP) {
+            paginationNav.innerHTML = '';
+            if (totalP <= 1) {
+                paginationWrapper.classList.add('d-none');
+                return;
+            }
+            paginationWrapper.classList.remove('d-none');
+
+            // Previous Button
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${page === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<button type="button" class="page-link" aria-label="Previous">&laquo; Prev</button>`;
+            if (page > 1) {
+                prevLi.querySelector('button').addEventListener('click', () => fetchMembersPage(page - 1));
+            }
+            paginationNav.appendChild(prevLi);
+
+            // Page Numbers with smart ellipsis
+            for (let i = 1; i <= totalP; i++) {
+                if (i === 1 || i === totalP || (i >= page - 1 && i <= page + 1)) {
+                    const li = document.createElement('li');
+                    li.className = `page-item ${i === page ? 'active' : ''}`;
+                    li.innerHTML = `<button type="button" class="page-link">${i}</button>`;
+                    if (i !== page) {
+                        li.querySelector('button').addEventListener('click', () => fetchMembersPage(i));
+                    }
+                    paginationNav.appendChild(li);
+                } else if (i === page - 2 || i === page + 2) {
+                    const dots = document.createElement('li');
+                    dots.className = 'page-item disabled';
+                    dots.innerHTML = `<span class="page-link">...</span>`;
+                    paginationNav.appendChild(dots);
+                }
+            }
+
+            // Next Button
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${page === totalP ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<button type="button" class="page-link" aria-label="Next">Next &raquo;</button>`;
+            if (page < totalP) {
+                nextLi.querySelector('button').addEventListener('click', () => fetchMembersPage(page + 1));
+            }
+            paginationNav.appendChild(nextLi);
+        }
+
+        async function fetchMembersPage(targetPage = 1) {
+            const query = (searchInput.value || '').trim();
+
+            try {
+                const res = await fetch(`{{ route('membership.search.query') }}?q=${encodeURIComponent(query)}&page=${targetPage}&per_page=${perPage}`);
+                const data = await res.json();
+                if (data.success) {
+                    renderMembers(data.members, data.total, data.page, data.total_pages, query);
+                    
+                    // Smooth scroll back to search box if user clicked page
+                    if (targetPage !== currentPage) {
+                        const targetElem = document.getElementById('memberSearchInput') || container;
+                        targetElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            } catch (err) {
+                console.error('Search request failed:', err);
             }
         }
 
-        searchBtn?.addEventListener('click', filterMembers);
-        searchInput?.addEventListener('keyup', (e) => {
-            if (e.key === 'Enter') {
-                filterMembers();
+        // Live 2-Letter Instant Search
+        searchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            const val = searchInput.value.trim();
+
+            if (val.length === 0) {
+                fetchMembersPage(1);
+            } else if (val.length >= 2) {
+                countBadge.textContent = `Searching for "${val}"...`;
+                debounceTimer = setTimeout(() => fetchMembersPage(1), 220);
+            } else {
+                countBadge.textContent = 'Type at least 2 letters to filter directory...';
             }
         });
 
-        resetBtn?.addEventListener('click', () => {
-            searchInput.value = '';
-            filterMembers();
+        searchBtn.addEventListener('click', () => fetchMembersPage(1));
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                fetchMembersPage(1);
+            }
         });
+
+        resetBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            fetchMembersPage(1);
+        });
+
+        // Initialize first page
+        fetchMembersPage(1);
     });
 </script>
 @endsection

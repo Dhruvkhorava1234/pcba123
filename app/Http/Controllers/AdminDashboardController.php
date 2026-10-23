@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CfsPass;
 use App\Models\Circular;
 use App\Models\Event;
+use App\Models\GalleryFolder;
 use App\Models\GalleryImage;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -19,12 +20,14 @@ class AdminDashboardController extends Controller
         $membersCount  = User::where('role', 'member')->count();
         $eventsCount   = Event::count();
         $galleryCount  = GalleryImage::count();
+        $foldersCount  = GalleryFolder::count();
         $passesCount   = CfsPass::count();
         $circularsCount = Circular::count();
 
         $members       = User::where('role', 'member')->latest()->get();
         $events        = Event::latest()->get();
-        $galleryImages = GalleryImage::latest()->get();
+        $galleryFolders = GalleryFolder::withCount('images')->latest()->get();
+        $galleryImages = GalleryImage::with('folder')->latest()->get();
         $passes        = CfsPass::with('user')->latest()->get();
         $circulars     = Circular::withTrashed()->latest()->get();
 
@@ -32,10 +35,12 @@ class AdminDashboardController extends Controller
             'membersCount',
             'eventsCount',
             'galleryCount',
+            'foldersCount',
             'passesCount',
             'circularsCount',
             'members',
             'events',
+            'galleryFolders',
             'galleryImages',
             'passes',
             'circulars'
@@ -147,25 +152,14 @@ class AdminDashboardController extends Controller
     }
 
     /**
-     * Store a newly uploaded gallery image.
+     * Store a newly created gallery folder.
      */
-    public function storeGallery(Request $request)
+    public function storeFolder(Request $request)
     {
-        // Check if PHP discarded the upload due to upload_max_filesize or post_max_size
-        $file = $request->file('image');
-        if ($file && !$file->isValid()) {
-            return redirect()->back()
-                ->withInput()
-                ->with('active_tab', 'gallery')
-                ->with('error', 'The image file could not be processed by the server (' . $file->getErrorMessage() . '). Please restart WAMP or select an image under 2MB until WAMP is restarted.');
-        }
-
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-            'title' => 'nullable|string|max:255',
-            'category' => 'required|string',
-            'image' => 'required|file|mimes:jpeg,jpg,png,gif,webp,svg,bmp,avif,ico,heic,heif,tiff,tif|max:25600',
-        ], [
-            'image.uploaded' => 'The image could not be uploaded because its file size exceeds WAMP\'s current limit. Please restart WAMP services from the tray icon to activate 64MB uploads.',
+            'name' => 'required|string|max:150',
+            'description' => 'nullable|string|max:500',
+            'cover_image' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,svg,bmp,avif,ico,heic,heif,tiff,tif|max:25600',
         ]);
 
         if ($validator->fails()) {
@@ -173,19 +167,111 @@ class AdminDashboardController extends Controller
                 ->withErrors($validator)
                 ->withInput()
                 ->with('active_tab', 'gallery')
-                ->with('error', 'Image upload failed: ' . $validator->errors()->first());
+                ->with('error', 'Folder creation failed: ' . $validator->errors()->first());
         }
 
-        $path = $request->file('image')->store('gallery', 'public');
+        $coverPath = null;
+        if ($request->hasFile('cover_image')) {
+            $coverPath = 'storage/' . $request->file('cover_image')->store('gallery/covers', 'public');
+        }
 
-        GalleryImage::create([
-            'title' => $request->title ?: 'Gallery Photo',
-            'category' => $request->category,
-            'image_path' => 'storage/' . $path,
+        $folder = GalleryFolder::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'cover_image' => $coverPath,
         ]);
 
         return redirect()->route('admin.dashboard')->with([
-            'success' => 'Image uploaded to gallery successfully!',
+            'success' => 'Gallery folder "' . $folder->name . '" created successfully!',
+            'active_tab' => 'gallery',
+        ]);
+    }
+
+    /**
+     * Delete a gallery folder.
+     */
+    public function destroyFolder(GalleryFolder $folder)
+    {
+        $folderName = $folder->name;
+        // Detach images or keep them safe
+        $folder->images()->update(['folder_id' => null]);
+        $folder->forceDelete();
+
+        return redirect()->route('admin.dashboard')->with([
+            'success' => 'Folder "' . $folderName . '" deleted successfully!',
+            'active_tab' => 'gallery',
+        ]);
+    }
+
+    /**
+     * Store newly uploaded gallery image(s).
+     */
+    public function storeGallery(Request $request)
+    {
+        // Support both multiple images (images[]) or single image upload
+        $images = $request->file('images');
+        if (!$images && $request->hasFile('image')) {
+            $images = [$request->file('image')];
+        }
+
+        if (empty($images) || !is_array($images)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('active_tab', 'gallery')
+                ->with('error', 'Please choose at least one image file to upload.');
+        }
+
+        $folder = null;
+        if ($request->filled('folder_id')) {
+            $folder = GalleryFolder::find($request->folder_id);
+        }
+
+        $folderName = $folder ? $folder->name : 'PCBA Gallery';
+        $uploadedCount = 0;
+        $allowedExtensions = ['jpeg', 'jpg', 'png', 'gif', 'webp', 'svg', 'bmp', 'avif', 'ico', 'heic', 'heif', 'tiff', 'tif'];
+
+        foreach ($images as $file) {
+            if (!$file || !$file->isValid()) {
+                continue;
+            }
+
+            $ext = strtolower($file->getClientOriginalExtension());
+            if (!in_array($ext, $allowedExtensions)) {
+                continue;
+            }
+
+            // Derive nice clean title from filename if title not provided
+            $origName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $cleanTitle = ucwords(str_replace(['-', '_'], ' ', $origName));
+            if (empty(trim($cleanTitle))) {
+                $cleanTitle = $folder ? $folder->name : 'Gallery Photo';
+            }
+
+            $path = $file->store('gallery', 'public');
+
+            GalleryImage::create([
+                'folder_id'  => $request->folder_id ?: null,
+                'title'      => $cleanTitle,
+                'category'   => $folderName,
+                'image_path' => 'storage/' . $path,
+            ]);
+
+            $uploadedCount++;
+        }
+
+        if ($uploadedCount === 0) {
+            return redirect()->back()
+                ->withInput()
+                ->with('active_tab', 'gallery')
+                ->with('error', 'No valid images could be uploaded. Please ensure the files are valid images.');
+        }
+
+        $msg = $uploadedCount === 1 
+            ? '1 photo uploaded successfully!' 
+            : $uploadedCount . ' photos uploaded successfully to ' . ($folder ? '"' . $folder->name . '"' : 'gallery') . '!';
+
+        return redirect()->route('admin.dashboard')->with([
+            'success'    => $msg,
             'active_tab' => 'gallery',
         ]);
     }

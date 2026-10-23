@@ -48,7 +48,8 @@
                 </div>
             </div>
 
-            <form id="membershipApplyForm" onsubmit="event.preventDefault(); alert('Your Membership Application has been submitted successfully! The PCBA Secretariat will review your details and contact you for verification and payment.');">
+            <form id="membershipApplyForm" action="{{ route('membership.apply.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
                 
                 <!-- 1. Office Type -->
                 <div class="mb-4 p-3 rounded-3" style="background: #fdfbf7; border: 1px solid #e7dfd5;">
@@ -596,8 +597,22 @@
 
                 <!-- 16. Continue to Payment Button -->
                 <div>
-                    <button type="submit" class="btn w-100 py-3 fw-bold text-uppercase fs-6 text-white rounded-3 shadow-sm" style="background: #091724; border: 1px solid #091724; letter-spacing: 0.05em; transition: all 0.25s ease;" onmouseover="this.style.background='var(--color-accent-orange)'; this.style.borderColor='var(--color-accent-orange)';" onmouseout="this.style.background='#091724'; this.style.borderColor='#091724';">
-                        Continue to Payment <i class="bi bi-arrow-right ms-2"></i>
+                    <div class="d-flex align-items-center justify-content-between p-3 rounded-3 mb-3" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+                        <div>
+                            <span class="badge bg-success text-uppercase px-2.5 py-1 mb-1">Fee Summary</span>
+                            <div class="fw-bold text-dark fs-5">PCBA Annual Membership Fee: <span class="text-success">₹11,000.00</span></div>
+                            <div class="text-secondary small">Inclusive of official affiliation, directory listing, and EXIM trade representation.</div>
+                        </div>
+                        <div class="text-end d-none d-sm-block">
+                            <span class="badge bg-white text-dark border px-3 py-2 fw-semibold">
+                                <i class="bi bi-shield-lock-fill text-success me-1"></i> Razorpay Secured
+                            </span>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnContinuePayment" class="btn w-100 py-3 fw-bold text-uppercase fs-6 text-white rounded-3 shadow-sm d-flex align-items-center justify-content-center" style="background: #091724; border: 1px solid #091724; letter-spacing: 0.05em; transition: all 0.25s ease;">
+                        <span id="btnText">Proceed to Pay ₹11,000 <i class="bi bi-credit-card-2-front ms-2"></i></span>
+                        <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
                     </button>
                 </div>
 
@@ -605,9 +620,58 @@
         </div>
     </div>
 </section>
+
+<!-- Success Payment Confirmation Modal -->
+<div class="modal fade" id="paymentSuccessModal" tabindex="-1" aria-labelledby="paymentSuccessModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-body p-4 p-md-5 text-center">
+                <div class="mx-auto mb-3 rounded-circle d-flex align-items-center justify-content-center text-white shadow" style="width: 72px; height: 72px; background: #16a34a; font-size: 2rem;">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+                <span class="badge bg-success-subtle text-success px-3 py-1 fw-bold mb-2">Payment Completed</span>
+                <h3 class="fw-bold text-dark mb-1">Application Submitted!</h3>
+                <p class="text-secondary small mb-4">
+                    Thank you. Your membership application and payment of <strong>₹11,000.00</strong> have been received and verified.
+                </p>
+
+                <div class="p-3 bg-light rounded-3 text-start small mb-4 border">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Application No:</span>
+                        <strong class="text-dark" id="modalAppNo">-</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Payment ID:</span>
+                        <span class="text-dark font-monospace" id="modalPaymentId">-</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Receipt No:</span>
+                        <strong class="text-primary" id="modalReceiptNo">-</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Amount Paid:</span>
+                        <strong class="text-success" id="modalAmountPaid">₹11,000.00</strong>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a href="{{ route('home') }}" class="btn text-white fw-bold py-2.5 rounded-3" style="background: #091724;">
+                        <i class="bi bi-house-door me-1"></i> Return to Homepage
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary py-2" onclick="window.print()">
+                        <i class="bi bi-printer me-1"></i> Print Confirmation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('extra_js')
+<!-- Razorpay Checkout Library -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <script>
     function toggleCorrespondenceAddress(checkbox) {
         const address = document.querySelector('textarea[name="address"]').value;
@@ -633,19 +697,13 @@
         const localAddressInput = document.getElementById('localAddressInput');
 
         if (isBranch) {
-            // Show Branch Office Particulars
             if (branchFields) branchFields.style.display = 'block';
-            
-            // Show / Require Branch-specific uploads (Endorsement letter & Local address proof)
             if (endorsementField) endorsementField.style.display = 'block';
             if (localAddressField) localAddressField.style.display = 'block';
             if (endorsementInput) endorsementInput.required = true;
             if (localAddressInput) localAddressInput.required = true;
         } else {
-            // Hide Branch Office Particulars for Main Office
             if (branchFields) branchFields.style.display = 'none';
-            
-            // Optional / hidden for Main Office
             if (endorsementField) endorsementField.style.display = 'none';
             if (localAddressField) localAddressField.style.display = 'none';
             if (endorsementInput) endorsementInput.required = false;
@@ -658,9 +716,131 @@
         officeRadios.forEach(radio => {
             radio.addEventListener('change', handleOfficeTypeChange);
         });
-
-        // Initial setup on load
         handleOfficeTypeChange();
+
+        // Form Submit -> AJAX to store -> Launch Razorpay
+        const form = document.getElementById('membershipApplyForm');
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // Validate form
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const btn = document.getElementById('btnContinuePayment');
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+
+            btn.disabled = true;
+            btnText.innerText = 'Creating Payment Order...';
+            btnSpinner.classList.remove('d-none');
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch("{{ route('membership.apply.store') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Error processing application. Please check all fields.');
+                }
+
+                // Initialize Razorpay Options
+                const options = {
+                    key: data.razorpay_key,
+                    amount: data.amount_paise, // 1100000 paise = Rs 11,000
+                    currency: "INR",
+                    name: "Pipavav Customs Brokers Association",
+                    description: "Annual Membership Fee - Rs. 11,000",
+                    image: "{{ asset('images/logo-trimmed.png') }}",
+                    prefill: {
+                        name: data.contact_person,
+                        email: data.email,
+                        contact: data.mobile
+                    },
+                    notes: {
+                        application_no: data.application_no,
+                        company_name: data.company_name
+                    },
+                    theme: {
+                        color: "#091724"
+                    },
+                    handler: async function (razorpayResponse) {
+                        btnText.innerText = 'Verifying Payment...';
+                        try {
+                            const verifyRes = await fetch("{{ route('membership.payment.callback') }}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    application_id: data.application_id,
+                                    razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                                    razorpay_order_id: razorpayResponse.razorpay_order_id || null,
+                                    razorpay_signature: razorpayResponse.razorpay_signature || null,
+                                })
+                            });
+
+                            const verifyData = await verifyRes.json();
+                            if (verifyData.success) {
+                                document.getElementById('modalAppNo').innerText = verifyData.application_no;
+                                document.getElementById('modalPaymentId').innerText = verifyData.payment_id;
+                                document.getElementById('modalReceiptNo').innerText = verifyData.receipt_no;
+                                document.getElementById('modalAmountPaid').innerText = '₹' + verifyData.amount_paid;
+
+                                const successModal = new bootstrap.Modal(document.getElementById('paymentSuccessModal'));
+                                successModal.show();
+                            } else {
+                                alert('Payment verification notice: ' + (verifyData.message || 'Payment recorded.'));
+                            }
+                        } catch (err) {
+                            console.error(err);
+                            alert('Payment completed (ID: ' + razorpayResponse.razorpay_payment_id + '). Our secretariat will confirm your registration.');
+                        } finally {
+                            btn.disabled = false;
+                            btnText.innerText = 'Proceed to Pay ₹11,000';
+                            btnSpinner.classList.add('d-none');
+                        }
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            btn.disabled = false;
+                            btnText.innerText = 'Proceed to Pay ₹11,000';
+                            btnSpinner.classList.add('d-none');
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function (resp) {
+                    alert('Payment Failed: ' + (resp.error.description || 'Transaction declined.'));
+                    btn.disabled = false;
+                    btnText.innerText = 'Proceed to Pay ₹11,000';
+                    btnSpinner.classList.add('d-none');
+                });
+
+                rzp.open();
+
+            } catch (error) {
+                console.error(error);
+                alert('Submission Error: ' + error.message);
+                btn.disabled = false;
+                btnText.innerText = 'Proceed to Pay ₹11,000';
+                btnSpinner.classList.add('d-none');
+            }
+        });
     });
 </script>
 @endsection
