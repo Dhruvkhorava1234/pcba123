@@ -429,6 +429,7 @@ a {
   min-width: 255px;
   padding: 0;
   overflow: hidden;
+  z-index: 1060;
 }
 
 .pcba-user-dropdown-header {
@@ -1556,80 +1557,527 @@ a {
 
 /* -------------------------------------------
    RESPONSIVE DESIGN BREAKPOINTS
+   Full mobile / tablet / desktop coverage
 ------------------------------------------- */
+
+/* ── XL (1200px+) tweaks ── */
+@media (max-width: 1199.98px) {
+  .bento-col-4 { grid-column: span 6; }
+  .bento-col-6 { grid-column: span 6; }
+  .bento-col-8 { grid-column: span 12; }
+  .concentric-rings-wrap {
+    width: 350px;
+    height: 350px;
+  }
+  .ring-outer-3 { width: 350px; height: 350px; }
+  .ring-outer-2 { width: 290px; height: 290px; }
+  .ring-outer-1 { width: 235px; height: 235px; }
+  .president-orange-disc { width: 215px; height: 215px; }
+  .president-floating-img-wrap { width: 195px; height: 250px; }
+}
+
+/* ── LG (992px - 1199px) ── */
 @media (max-width: 991.98px) {
-  .hero-section {
-    padding-top: 110px;
-    padding-bottom: 50px;
+  /* Navbar */
+  .pcba-navbar {
+    padding: 12px 0;
+    overflow: visible !important;
   }
-
-  .page-hero {
-    padding-top: 110px;
-    padding-bottom: 45px;
+  .pcba-navbar .container,
+  .pcba-navbar .container-fluid {
+    overflow: visible !important;
   }
-
-  .hero-bg-image {
-    width: 100%;
-    opacity: 0.18;
-  }
-
-  .bento-col-4,
-  .bento-col-6,
-  .bento-col-8 {
-    grid-column: span 12;
-  }
-
-  .feature-card-vertical {
-    height: 400px;
-    margin-bottom: 24px;
-  }
-
-  .hero-interactive-card {
-    margin: 30px auto 0 auto;
-    max-width: 100%;
-  }
-
-  .stats-counter-bar {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .stat-item {
-    border-right: none;
-    border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 12px;
-  }
-
-  .stat-item:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-
+  .brand-logo-img { height: 52px; }
   .navbar-collapse {
     background: #ffffff;
     border: 1px solid #e2e8f0;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     border-radius: 12px;
-    padding: 20px;
-    margin-top: 14px;
+    padding: 18px;
+    margin-top: 12px;
+    max-height: 80vh;
+    overflow-y: auto !important;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
+  .navbar-collapse .nav-link { padding: 10px 12px !important; }
+  .navbar-collapse .d-flex.align-items-center.gap-2.flex-wrap {
+    width: 100%;
+    margin-top: 8px;
+  }
+  .navbar-collapse .dropdown {
+    width: 100%;
+  }
+  .navbar-collapse .btn-pcba-primary,
+  .navbar-collapse .btn-pcba-secondary {
+    width: 100%;
+    margin-top: 8px;
+  }
+  .navbar-collapse .dropdown .btn-pcba-primary {
+    margin-top: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* User dropdown inside mobile navbar: expand statically so it is never clipped */
+  .navbar-collapse .pcba-user-dropdown {
+    position: static !important;
+    float: none !important;
+    transform: none !important;
+    inset: auto !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 8px !important;
+    margin-bottom: 6px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    overflow: hidden;
+  }
+
+  /* Hero */
+  .hero-section {
+    padding-top: 105px;
+    padding-bottom: 50px;
+    min-height: auto;
+  }
+  .hero-bg-image {
+    width: 100%;
+    opacity: 0.15;
+    right: 0;
+  }
+  .hero-bg-overlay {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.92) 60%, rgba(255,255,255,0.8) 100%);
+  }
+  .hero-content { text-align: center; }
+  .hero-actions { justify-content: center; }
+  .hero-subtext { max-width: 100%; margin-left: auto; margin-right: auto; }
+  .eyebrow-badge { margin: 0 auto 0.5rem auto; }
+
+  /* Page Hero */
+  .page-hero {
+    padding-top: 105px;
+    padding-bottom: 50px;
+  }
+  .page-hero-title { font-size: clamp(1.6rem, 3vw, 2.4rem); }
+  .page-hero-subtitle { font-size: 1rem; }
+
+  /* Stats counter */
+  .stats-counter-bar {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 20px 24px;
+  }
+  .stats-counter-bar.stats-counter-bar-4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .stat-item:nth-child(2n) { border-right: none; }
+  .stat-item:nth-child(1),
+  .stat-item:nth-child(2) {
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 12px;
+  }
+  .stat-item { border-right: 1px solid #e2e8f0; }
+  .stat-item:nth-child(2),
+  .stat-item:nth-child(4) { border-right: none; }
+  .stat-item:last-child { border-bottom: none; }
+
+  /* Bento grid */
+  .bento-grid { gap: 16px; }
+  .bento-col-4,
+  .bento-col-6,
+  .bento-col-8 { grid-column: span 12; }
+
+  /* Feature cards */
+  .feature-card-vertical {
+    height: 360px;
+    margin-bottom: 16px;
+  }
+
+  /* Hero interactive card */
+  .hero-interactive-card {
+    margin: 28px auto 0 auto;
+    max-width: 100%;
+  }
+
+  /* Services section */
+  .services-section { padding: 70px 0; }
+  .bento-section { padding: 70px 0; }
+
+  /* President section */
+  .president-spotlight-section { padding: 60px 0; }
+  .president-visual-col { min-height: 320px; }
+  .concentric-rings-wrap { width: 300px; height: 300px; }
+  .ring-outer-3 { width: 300px; height: 300px; }
+  .ring-outer-2 { width: 248px; height: 248px; }
+  .ring-outer-1 { width: 200px; height: 200px; }
+  .president-orange-disc { width: 185px; height: 185px; }
+  .president-floating-img-wrap { width: 165px; height: 210px; }
+
+  /* Content boxes */
+  .content-box { padding: 24px 20px; }
+
+  /* Footer */
+  .pcba-footer { padding: 60px 0 28px 0; }
+  .footer-bottom { margin-top: 40px; }
 }
 
+/* ── MD (768px - 991px) Tablet-specific ── */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .stats-counter-bar { grid-template-columns: repeat(2, 1fr); }
+  .bento-col-4 { grid-column: span 6; }
+}
+
+/* ── SM + MD shared (max 767px) ── */
 @media (max-width: 767.98px) {
-  .hero-title {
-    font-size: 2.15rem;
-  }
-
+  /* Typography */
+  .hero-title { font-size: clamp(1.8rem, 6vw, 2.4rem); }
   .section-lead-title,
-  .bento-header-title {
-    font-size: 1.85rem;
-  }
+  .bento-header-title { font-size: clamp(1.5rem, 5vw, 2rem); }
+  .page-hero-title { font-size: clamp(1.5rem, 5.5vw, 2.2rem); }
+  .page-hero-subtitle { font-size: 0.96rem; }
 
+  /* Buttons - full width on small screens */
   .btn-pcba-primary,
   .btn-pcba-secondary {
     width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* Hero section */
+  .hero-section {
+    padding-top: 95px;
+    padding-bottom: 40px;
+  }
+  .hero-actions { flex-direction: column; gap: 0.75rem; }
+  .hero-subtext { font-size: 0.95rem; }
+
+  /* Page hero */
+  .page-hero {
+    padding-top: 95px;
+    padding-bottom: 40px;
+  }
+
+  /* Stats counter - 2 columns on tablets, 1 on mobile */
+  .stats-counter-bar,
+  .stats-counter-bar.stats-counter-bar-4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 16px;
+  }
+  .stat-number { font-size: 1.8rem; }
+
+  /* Navbar brand */
+  .brand-logo-img { height: 44px; }
+  .brand-title { font-size: 1.05rem; }
+
+  /* Bento grid - single column on mobile */
+  .bento-grid { gap: 12px; }
+  .bento-col-4,
+  .bento-col-6,
+  .bento-col-8 { grid-column: span 12; }
+  .bento-card { padding: 22px 18px; }
+
+  /* Feature cards */
+  .feature-card-vertical {
+    height: 300px;
+    margin-bottom: 14px;
+    padding: 22px;
+  }
+  .feature-title { font-size: 1.2rem; }
+
+  /* President section */
+  .president-spotlight-section { padding: 50px 0; }
+  .president-visual-col {
+    min-height: 260px;
+    margin-bottom: 32px;
+  }
+  .concentric-rings-wrap { width: 250px; height: 250px; }
+  .ring-outer-3 { width: 250px; height: 250px; }
+  .ring-outer-2 { width: 205px; height: 205px; }
+  .ring-outer-1 { width: 165px; height: 165px; }
+  .president-orange-disc { width: 155px; height: 155px; }
+  .president-floating-img-wrap { width: 138px; height: 175px; }
+  .president-quote-text { font-size: 1.05rem; }
+  .president-author-lockup { flex-wrap: wrap; }
+
+  /* Sections padding */
+  .services-section { padding: 50px 0; }
+  .bento-section { padding: 50px 0; }
+  .circulars-section { padding: 28px 0; }
+
+  /* Content boxes */
+  .content-box { padding: 20px 16px; }
+  .pillar-card { padding: 20px 16px; }
+  .bento-header-wrapper { margin-bottom: 36px; }
+
+  /* Footer */
+  .pcba-footer { padding: 48px 0 24px 0; }
+  .footer-bottom { margin-top: 32px; padding-top: 18px; }
+  .footer-brand-logo { height: 60px; }
+
+  /* Navbar mobile menu */
+  .navbar-collapse {
+    padding: 14px;
+    margin-top: 10px;
+  }
+  .navbar-collapse .nav-link { font-size: 0.9rem; }
+}
+
+/* ── XS (max 575px) Mobile portrait ── */
+@media (max-width: 575.98px) {
+  /* Navbar */
+  .brand-logo-img { height: 38px; }
+  .brand-title { font-size: 0.95rem; }
+  .pcba-navbar { padding: 10px 0; }
+  .navbar-toggler { padding: 6px 10px; }
+  .navbar-toggler .bi { font-size: 1.5rem !important; }
+
+  /* Hero */
+  .hero-section {
+    padding-top: 85px;
+    padding-bottom: 36px;
+  }
+  .hero-title { font-size: clamp(1.55rem, 7vw, 2rem); line-height: 1.2; }
+  .hero-subtext { font-size: 0.9rem; line-height: 1.6; }
+  .hero-actions { gap: 0.6rem; }
+
+  /* Stats bar - stack to 1 column */
+  .stats-counter-bar,
+  .stats-counter-bar.stats-counter-bar-4 {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 10px;
+  }
+  .stat-number { font-size: 1.55rem; }
+  .stat-label { font-size: 0.72rem; }
+  .stat-item {
+    border-right: 1px solid #e2e8f0 !important;
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+    padding-right: 10px;
+  }
+  .stat-item:nth-child(even) {
+    border-right: none !important;
+    padding-right: 0;
+  }
+  .stat-item:nth-child(3),
+  .stat-item:nth-child(4) {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 10px;
+  }
+
+  /* Page hero */
+  .page-hero {
+    padding-top: 85px;
+    padding-bottom: 32px;
+  }
+  .page-hero-title { font-size: clamp(1.3rem, 6.5vw, 1.8rem); }
+  .page-hero-subtitle { font-size: 0.9rem; line-height: 1.55; }
+  .badge-tagline { font-size: 0.72rem; padding: 5px 10px; }
+  .page-breadcrumb { font-size: 0.75rem; }
+
+  /* Bento */
+  .bento-card { padding: 18px 14px; }
+  .bento-card-icon { width: 44px; height: 44px; font-size: 1.2rem; }
+  .bento-title { font-size: 1.05rem; }
+  .bento-text { font-size: 0.88rem; }
+
+  /* Feature cards */
+  .feature-card-vertical { height: 270px; padding: 18px; }
+  .feature-title { font-size: 1.1rem; }
+  .feature-description { font-size: 0.85rem; }
+
+  /* Section typography */
+  .section-lead-title,
+  .bento-header-title { font-size: 1.4rem; }
+  .section-desc { font-size: 0.95rem; }
+  .bento-header-wrapper { margin-bottom: 28px; }
+
+  /* Content/pillar boxes */
+  .content-box { padding: 16px 14px; border-radius: 10px; }
+  .pillar-card { padding: 16px 14px; }
+  .pillar-icon { width: 44px; height: 44px; font-size: 1.2rem; }
+
+  /* President section */
+  .concentric-rings-wrap { width: 200px; height: 200px; }
+  .ring-outer-3 { width: 200px; height: 200px; }
+  .ring-outer-2 { width: 165px; height: 165px; }
+  .ring-outer-1 { width: 132px; height: 132px; }
+  .president-orange-disc { width: 124px; height: 124px; }
+  .president-floating-img-wrap { width: 110px; height: 140px; border-radius: 12px; }
+  .president-quote-text { font-size: 0.97rem; line-height: 1.6; }
+  .president-visual-col { min-height: 220px; }
+
+  /* Footer */
+  .pcba-footer { padding: 38px 0 20px 0; }
+  .footer-brand-logo { height: 50px; }
+  .footer-title { font-size: 0.9rem; margin-bottom: 18px; }
+  .footer-links a { font-size: 0.84rem; }
+  .footer-contact-item { font-size: 0.84rem; }
+  .footer-bottom { margin-top: 24px; font-size: 0.78rem; }
+  .social-links { flex-wrap: wrap; gap: 8px; }
+  .social-link { width: 34px; height: 34px; font-size: 0.9rem; }
+
+  /* Service pills */
+  .service-feature-pill { padding: 12px 14px; gap: 10px; }
+  .service-feature-pill i { font-size: 1.1rem; }
+
+  /* Buttons */
+  .btn-pcba-primary,
+  .btn-pcba-secondary {
+    padding: 11px 20px;
+    font-size: 0.88rem;
+  }
+
+  /* Notice/circular cards */
+  .notice-item-card { flex-direction: column; align-items: flex-start; gap: 12px; }
+
+  /* Back to top */
+  .back-to-top-btn { bottom: 18px; right: 16px; width: 40px; height: 40px; font-size: 1.1rem; }
+
+  /* CFS passes header fix */
+  .cfs-passes-header .col-6 { flex: 0 0 100%; max-width: 100%; }
+  .cfs-passes-header { flex-direction: column; gap: 12px; }
+}
+
+/* ── Ultra-small (max 400px) ── */
+@media (max-width: 399px) {
+  .hero-title { font-size: 1.45rem; }
+  .page-hero-title { font-size: 1.25rem; }
+  .brand-logo-img { height: 34px; }
+  .brand-title { font-size: 0.85rem; }
+  .brand-subtitle { display: none; }
+  .stats-counter-bar,
+  .stats-counter-bar.stats-counter-bar-4 {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 12px;
+  }
+  .stat-number { font-size: 1.35rem; }
+  .content-box { padding: 14px 12px; }
+  .bento-card { padding: 14px 12px; }
+  .feature-card-vertical { height: 250px; }
+}
+
+/* ── Table responsiveness across pages ── */
+@media (max-width: 767.98px) {
+  .table-responsive table {
+    min-width: 560px;
+  }
+  .table-responsive {
+    border-radius: 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
+
+/* ── Forms responsiveness ── */
+@media (max-width: 575.98px) {
+  .form-control,
+  .form-select {
+    font-size: 0.9rem;
+    padding: 0.55rem 0.8rem;
+  }
+  .form-label { font-size: 0.88rem; }
+  /* Row columns for forms */
+  .row.g-3 > .col-md-6,
+  .row.g-4 > .col-md-6,
+  .row.g-3 > .col-md-4,
+  .row.g-4 > .col-md-4 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+/* ── Gallery grid ── */
+@media (max-width: 575.98px) {
+  .row.g-3.row-cols-2.row-cols-sm-2.row-cols-md-3 > .col {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+/* ── Ensure images are responsive globally ── */
+img { max-width: 100%; height: auto; }
+
+/* ── Overflow protection ── */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+section:not(.hero-section) {
+  overflow-x: clip;
+}
+
+/* Ensure navbar containers never clip dropdown menus */
+.pcba-navbar,
+.pcba-navbar .container,
+.pcba-navbar .container-fluid {
+  overflow: visible !important;
+}
+
+/* ── Membership Apply – radio group wrap on mobile ── */
+@media (max-width: 575.98px) {
+  .d-flex.gap-4 { flex-wrap: wrap; gap: 0.75rem !important; }
+  /* Form section cards on membership apply */
+  section#apply-form-section .bg-white { padding: 1.25rem !important; }
+  section#apply-form-section .rounded-4 { border-radius: 12px !important; }
+}
+
+/* ── Admin / CFS / Grievances / Contact Manager page top padding on mobile ── */
+@media (max-width: 575.98px) {
+  [style*="padding-top: 135px"],
+  [style*="padding-top:135px"] {
+    padding-top: 85px !important;
+  }
+  [style*="padding-top: 125px"],
+  [style*="padding-top:125px"] {
+    padding-top: 80px !important;
+  }
+}
+
+/* ── Membership search page ── */
+@media (max-width: 767.98px) {
+  .membership-search-filters .row { gap: 0; }
+}
+
+/* ── Auth pages (login, register, change-password) ── */
+@media (max-width: 575.98px) {
+  .auth-card { padding: 1.5rem !important; }
+}
+
+/* ── Events & Training pages ── */
+@media (max-width: 767.98px) {
+  .events-section,
+  .training-section { padding: 48px 0; }
+}
+
+/* ── Associations page ── */
+@media (max-width: 575.98px) {
+  .associations-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Prevent horizontal scrollbar on mobile ── */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+
 
 /* -------------------------------------------
    MARITIME SHIP PORT ARRIVAL PRELOADER (LIGHT / WHITE THEME)

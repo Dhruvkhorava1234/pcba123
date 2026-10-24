@@ -204,7 +204,7 @@
                         <a class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}" href="{{ route('contact') }}">Contact</a>
                     </li>
                 </ul>
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
                     <!-- <a href="{{ route('membership.apply') }}" class="btn-pcba-secondary py-2 px-3 fs-7 text-decoration-none">
                         <i class="bi bi-file-earmark-plus"></i> Apply Form
                     </a> -->

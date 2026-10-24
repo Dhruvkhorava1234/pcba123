@@ -15,6 +15,12 @@
 </style>
 
 <div class="bg-white min-vh-100 cfs-no-anim" style="padding-top: 135px; padding-bottom: 70px;">
+<style>
+@media (max-width: 575.98px) {
+  .cfs-page-container { padding-top: 90px !important; }
+  .cfs-title { font-size: 1.35rem !important; }
+}
+</style>
     <div class="container" style="max-width: 1140px;">
 
         @if(session('success'))
@@ -38,21 +44,21 @@
 
         {{-- ── LIST VIEW ── --}}
         <div id="cfs-list-view" {{ session('show_form') ? 'style=display:none' : '' }}>
-            <div class="row align-items-center mb-4">
-                <div class="col-6">
-                    <h2 class="fw-bold mb-0 text-uppercase"
+            <div class="row align-items-center mb-4 g-2">
+                <div class="col-12 col-sm-6">
+                    <h2 class="fw-bold mb-0 text-uppercase cfs-title"
                         style="font-family:'Space Grotesk',sans-serif;color:#0a2540;font-size:1.75rem;letter-spacing:.5px;">
                         CFS PASSES
                     </h2>
                 </div>
-                <div class="col-6 text-end">
+                <div class="col-12 col-sm-6 text-sm-end">
                     <button type="button"
                         onclick="document.getElementById('cfs-list-view').style.display='none';
                                  document.getElementById('cfs-form-view').style.display='block';
                                  window.scrollTo({top:0});"
-                        class="btn px-4 py-2 text-white fw-medium shadow-sm"
+                        class="btn px-4 py-2 text-white fw-medium shadow-sm w-100 w-sm-auto"
                         style="background-color:#0b2530;border-radius:4px;font-size:.9rem;">
-                        Add
+                        <i class="bi bi-plus-lg me-1"></i> Add New Pass
                     </button>
                 </div>
             </div>
@@ -103,8 +109,8 @@
 
         {{-- ── ADD FORM VIEW ── --}}
         <div id="cfs-form-view" style="display:none;">
-            <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
-                <h2 class="fw-bold mb-0 text-uppercase"
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4 pb-2 border-bottom">
+                <h2 class="fw-bold mb-0 text-uppercase cfs-title"
                     style="font-family:'Space Grotesk',sans-serif;color:#0a2540;font-size:1.75rem;letter-spacing:.5px;">
                     CFS PASSES
                 </h2>

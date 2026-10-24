@@ -145,4 +145,123 @@
         </div>
     </div>
 </section>
+
+<!-- Committee Members Section -->
+<section class="py-5 bg-light border-top border-secondary border-opacity-10" id="committee-members">
+    <div class="container py-4">
+        <div class="text-center max-w-750 mx-auto mb-5">
+            <div class="eyebrow-badge mx-auto">[ Governance & Leadership ]</div>
+            <h2 class="section-lead-title mt-2">PCBA Committee Members</h2>
+            <p class="text-muted">
+                Executive committee and designated office bearers of the Pipavav Customs Brokers Association, guiding fraternity welfare and trade facilitation.
+            </p>
+        </div>
+
+        @php
+            $committeeMembers = [
+                [
+                    'name' => 'Pankaj Lodaya',
+                    'designation' => 'President & Secretary',
+                    'phone' => '9909954697',
+                    'badge' => 'Executive Office',
+                    'badge_class' => 'bg-danger text-white',
+                    'icon' => 'bi-award-fill'
+                ],
+                [
+                    'name' => 'Ketan Ganatra',
+                    'designation' => 'Vice President',
+                    'phone' => '9879898781',
+                    'badge' => 'Executive Office',
+                    'badge_class' => 'bg-danger text-white',
+                    'icon' => 'bi-shield-shaded'
+                ],
+                [
+                    'name' => 'Alpesh Patel',
+                    'designation' => 'Treasurer',
+                    'phone' => '9574878211',
+                    'badge' => 'Executive Office',
+                    'badge_class' => 'bg-danger text-white',
+                    'icon' => 'bi-wallet2'
+                ],
+                [
+                    'name' => 'Chirag Shah',
+                    'designation' => 'Committee Member',
+                    'phone' => '9377211223',
+                    'badge' => 'Committee Member',
+                    'badge_class' => 'bg-secondary text-white',
+                    'icon' => 'bi-person-badge'
+                ],
+                [
+                    'name' => 'Randhir Singh Seyan',
+                    'designation' => 'Committee Member',
+                    'phone' => '9638238705',
+                    'badge' => 'Committee Member',
+                    'badge_class' => 'bg-secondary text-white',
+                    'icon' => 'bi-person-badge'
+                ],
+                [
+                    'name' => 'Sanjeev Joshi',
+                    'designation' => 'Committee Member',
+                    'phone' => '9428469148',
+                    'badge' => 'Committee Member',
+                    'badge_class' => 'bg-secondary text-white',
+                    'icon' => 'bi-person-badge'
+                ],
+                [
+                    'name' => 'Lalbhai Marmal',
+                    'designation' => 'Committee Member',
+                    'phone' => '9979854092',
+                    'badge' => 'Committee Member',
+                    'badge_class' => 'bg-secondary text-white',
+                    'icon' => 'bi-person-badge'
+                ]
+            ];
+        @endphp
+
+        <div class="row g-4 justify-content-center">
+            @foreach($committeeMembers as $member)
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 p-4 d-flex flex-column justify-content-between position-relative overflow-hidden" 
+                         style="background: #ffffff; border: 1px solid #e2d9cc !important; transition: transform 0.25s ease, box-shadow 0.25s ease;">
+                        <div>
+                            <!-- Header / Avatar & Role Badge -->
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 52px; height: 52px; background: rgba(242, 92, 59, 0.1); color: var(--color-accent-orange); font-size: 1.4rem;">
+                                    <i class="bi {{ $member['icon'] }}"></i>
+                                </div>
+                                <span class="badge {{ $member['badge_class'] }} px-2 py-1 fs-8 fw-semibold rounded-pill">
+                                    {{ $member['badge'] }}
+                                </span>
+                            </div>
+
+                            <!-- Member Name & Designation -->
+                            <h5 class="fw-bold text-dark mb-1" style="font-size: 1.1rem; letter-spacing: -0.01em;">
+                                {{ $member['name'] }}
+                            </h5>
+                            <p class="text-danger fw-semibold small mb-3">
+                                {{ $member['designation'] }}
+                            </p>
+                        </div>
+
+                        <!-- Contact Lockup -->
+                        <div class="pt-3 border-top border-secondary border-opacity-10 mt-2">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="small text-muted d-flex align-items-center gap-1">
+                                    <i class="bi bi-telephone-fill text-secondary"></i>
+                                    <span class="fw-medium text-dark">{{ $member['phone'] }}</span>
+                                </div>
+                                <a href="tel:+91{{ $member['phone'] }}" 
+                                   class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 fs-8 d-inline-flex align-items-center gap-1"
+                                   title="Call {{ $member['name'] }}">
+                                    <i class="bi bi-telephone"></i> Call
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
 @endsection

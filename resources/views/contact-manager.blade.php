@@ -37,15 +37,15 @@
 
         <!-- View 1: Contact List View -->
         <div id="contact-list-view">
-            <div class="row align-items-center mb-4">
-                <div class="col-6">
+            <div class="row align-items-center mb-4 g-2">
+                <div class="col-12 col-sm-6">
                     <h2 class="fw-bold mb-0 text-uppercase" style="font-family: 'Space Grotesk', serif, sans-serif; color: #0a2540; font-size: 1.75rem; letter-spacing: 0.5px;">
                         CONTACT MANAGER
                     </h2>
                 </div>
-                <div class="col-6 text-end">
-                    <button type="button" id="btn-show-add-contact" onclick="document.getElementById('contact-list-view').style.display='none'; document.getElementById('contact-form-view').style.display='block'; window.scrollTo({top:0, behavior:'smooth'});" class="btn px-4 py-2 text-white fw-medium shadow-sm" style="background-color: #526b74; border-radius: 4px; font-size: 0.9rem; min-width: 95px;">
-                        Add
+                <div class="col-12 col-sm-6 text-sm-end">
+                    <button type="button" id="btn-show-add-contact" onclick="document.getElementById('contact-list-view').style.display='none'; document.getElementById('contact-form-view').style.display='block'; window.scrollTo({top:0, behavior:'smooth'});" class="btn px-4 py-2 text-white fw-medium shadow-sm w-100 w-sm-auto" style="background-color: #526b74; border-radius: 4px; font-size: 0.9rem;">
+                        <i class="bi bi-plus-lg me-1"></i> Add Contact
                     </button>
                 </div>
             </div>
