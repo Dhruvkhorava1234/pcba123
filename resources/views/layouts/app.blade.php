@@ -358,6 +358,7 @@
                         <li><a href="https://www.cbic.gov.in" target="_blank" rel="noopener"><i class="bi bi-chevron-right"></i> CBIC Portal</a></li>
                         <li><a href="https://www.apmterminals.com" target="_blank" rel="noopener"><i class="bi bi-chevron-right"></i> APM Terminals</a></li>
                         <li><a href="https://dgft.gov.in" target="_blank" rel="noopener"><i class="bi bi-chevron-right"></i> DGFT India</a></li>
+                        <li><a href="https://fcbai.org" target="_blank" rel="noopener"><i class="bi bi-chevron-right"></i> FCBA India</a></li>
                     </ul>
                 </div>
 
@@ -376,17 +377,7 @@
                         <i class="bi bi-shield-check"></i>
                         <span>Notification No. 52/2022-Customs (N.T.) • Regulation 20</span>
                     </div>
-                    <div class="mt-3">
-                        @auth
-                            <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-light rounded-pill px-3">
-                                <i class="bi bi-speedometer2 me-1"></i> Member Dashboard
-                            </a>
-                        @else
-                            <a href="{{ route('login') }}" class="btn btn-sm btn-outline-warning rounded-pill px-3">
-                                <i class="bi bi-lock-fill me-1"></i> Member Portal Login
-                            </a>
-                        @endauth
-                    </div>
+
                 </div>
             </div>
 

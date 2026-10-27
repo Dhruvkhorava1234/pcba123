@@ -46,8 +46,14 @@ class MembershipApplicationController extends Controller
         $uploadedDocs = [];
         foreach ($request->allFiles() as $key => $file) {
             if ($file && $file->isValid()) {
-                $path = $file->store('applications/' . date('Ym'), 'public');
-                $uploadedDocs[$key] = 'storage/' . $path;
+                $ext      = $file->getClientOriginalExtension();
+                $filename = time() . '_' . $key . '_' . uniqid() . '.' . $ext;
+                $destDir  = public_path('uploads/applications/' . date('Ym'));
+                if (!is_dir($destDir)) {
+                    mkdir($destDir, 0755, true);
+                }
+                $file->move($destDir, $filename);
+                $uploadedDocs[$key] = 'uploads/applications/' . date('Ym') . '/' . $filename;
             }
         }
 

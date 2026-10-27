@@ -7,6 +7,7 @@ use App\Models\Circular;
 use App\Models\Event;
 use App\Models\GalleryFolder;
 use App\Models\GalleryImage;
+use App\Models\MembershipApplication;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -17,19 +18,24 @@ class AdminDashboardController extends Controller
      */
     public function index()
     {
-        $membersCount  = User::where('role', 'member')->count();
-        $eventsCount   = Event::count();
-        $galleryCount  = GalleryImage::count();
-        $foldersCount  = GalleryFolder::count();
-        $passesCount   = CfsPass::count();
-        $circularsCount = Circular::count();
+        $membersCount       = User::where('role', 'member')->count();
+        $eventsCount        = Event::count();
+        $galleryCount       = GalleryImage::count();
+        $foldersCount       = GalleryFolder::count();
+        $passesCount        = CfsPass::count();
+        $circularsCount     = Circular::count();
+        $applicationsCount  = MembershipApplication::count();
 
-        $members       = User::where('role', 'member')->latest()->get();
-        $events        = Event::latest()->get();
-        $galleryFolders = GalleryFolder::withCount('images')->latest()->get();
-        $galleryImages = GalleryImage::with('folder')->latest()->get();
-        $passes        = CfsPass::with('user')->latest()->get();
-        $circulars     = Circular::withTrashed()->latest()->get();
+        $members                = User::where('role', 'member')->orderBy('name', 'asc')->get();
+        $events                 = Event::latest()->get();
+        $galleryFolders         = GalleryFolder::withCount('images')->latest()->get();
+        $galleryImages          = GalleryImage::with('folder')->latest()->get();
+        $passes                 = CfsPass::with('user')->latest()->get();
+        $circulars              = Circular::withTrashed()->latest()->get();
+        $membershipApplications = MembershipApplication::orderBy('company_name', 'asc')->get();
+        $appsByEmail            = $membershipApplications->keyBy(function ($app) {
+            return strtolower(trim($app->email));
+        });
 
         return view('admin.dashboard', compact(
             'membersCount',
@@ -38,12 +44,15 @@ class AdminDashboardController extends Controller
             'foldersCount',
             'passesCount',
             'circularsCount',
+            'applicationsCount',
             'members',
             'events',
             'galleryFolders',
             'galleryImages',
             'passes',
-            'circulars'
+            'circulars',
+            'membershipApplications',
+            'appsByEmail'
         ));
     }
 
@@ -53,12 +62,12 @@ class AdminDashboardController extends Controller
     public function storeEvent(Request $request)
     {
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
+            'title'      => 'required|string|max:255',
             'event_date' => 'nullable|date',
-            'location' => 'nullable|string|max:255',
-            'status' => 'required|string|in:upcoming,completed',
-            'description' => 'nullable|string',
-            'image' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,svg,bmp,avif,ico,heic,heif,tiff,tif|max:25600',
+            'location'   => 'nullable|string|max:255',
+            'status'     => 'required|string|in:upcoming,completed',
+            'description'=> 'nullable|string',
+            'image'      => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,svg,bmp,avif,ico,heic,heif,tiff,tif|max:25600',
         ]);
 
         if ($validator->fails()) {
@@ -72,14 +81,16 @@ class AdminDashboardController extends Controller
         $validated = $validator->validated();
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('events', 'public');
-            $validated['image'] = $path;
+            $file = $request->file('image');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/events'), $filename);
+            $validated['image'] = 'uploads/events/' . $filename;
         }
 
         Event::create($validated);
 
         return redirect()->route('admin.dashboard')->with([
-            'success' => 'Event added successfully!',
+            'success'    => 'Event added successfully!',
             'active_tab' => 'events',
         ]);
     }
@@ -90,12 +101,12 @@ class AdminDashboardController extends Controller
     public function updateEvent(Request $request, Event $event)
     {
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
+            'title'      => 'required|string|max:255',
             'event_date' => 'nullable|date',
-            'location' => 'nullable|string|max:255',
-            'status' => 'required|string|in:upcoming,completed',
-            'description' => 'nullable|string',
-            'image' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,svg,bmp,avif,ico,heic,heif,tiff,tif|max:25600',
+            'location'   => 'nullable|string|max:255',
+            'status'     => 'required|string|in:upcoming,completed',
+            'description'=> 'nullable|string',
+            'image'      => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,svg,bmp,avif,ico,heic,heif,tiff,tif|max:25600',
         ]);
 
         if ($validator->fails()) {
@@ -109,14 +120,16 @@ class AdminDashboardController extends Controller
         $validated = $validator->validated();
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('events', 'public');
-            $validated['image'] = $path;
+            $file = $request->file('image');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/events'), $filename);
+            $validated['image'] = 'uploads/events/' . $filename;
         }
 
         $event->update($validated);
 
         return redirect()->route('admin.dashboard')->with([
-            'success' => 'Event updated successfully!',
+            'success'    => 'Event updated successfully!',
             'active_tab' => 'events',
         ]);
     }
@@ -134,7 +147,7 @@ class AdminDashboardController extends Controller
         }
 
         return redirect()->route('admin.dashboard')->with([
-            'success' => 'Event "' . $event->title . '" status updated to ' . strtoupper($event->status) . '!',
+            'success'    => 'Event "' . $event->title . '" status updated to ' . strtoupper($event->status) . '!',
             'active_tab' => 'events',
         ]);
     }
@@ -144,9 +157,9 @@ class AdminDashboardController extends Controller
      */
     public function destroyEvent(Event $event)
     {
-        $event->delete(); 
+        $event->delete();
         return redirect()->route('admin.dashboard')->with([
-            'success' => 'Event deleted successfully!',
+            'success'    => 'Event deleted successfully!',
             'active_tab' => 'events',
         ]);
     }
@@ -157,7 +170,7 @@ class AdminDashboardController extends Controller
     public function storeFolder(Request $request)
     {
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-            'name' => 'required|string|max:150',
+            'name'        => 'required|string|max:150',
             'description' => 'nullable|string|max:500',
             'cover_image' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,svg,bmp,avif,ico,heic,heif,tiff,tif|max:25600',
         ]);
@@ -172,17 +185,20 @@ class AdminDashboardController extends Controller
 
         $coverPath = null;
         if ($request->hasFile('cover_image')) {
-            $coverPath = 'storage/' . $request->file('cover_image')->store('gallery/covers', 'public');
+            $file = $request->file('cover_image');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/gallery/covers'), $filename);
+            $coverPath = 'uploads/gallery/covers/' . $filename;
         }
 
         $folder = GalleryFolder::create([
-            'name' => $request->name,
+            'name'        => $request->name,
             'description' => $request->description,
             'cover_image' => $coverPath,
         ]);
 
         return redirect()->route('admin.dashboard')->with([
-            'success' => 'Gallery folder "' . $folder->name . '" created successfully!',
+            'success'    => 'Gallery folder "' . $folder->name . '" created successfully!',
             'active_tab' => 'gallery',
         ]);
     }
@@ -193,12 +209,11 @@ class AdminDashboardController extends Controller
     public function destroyFolder(GalleryFolder $folder)
     {
         $folderName = $folder->name;
-        // Detach images or keep them safe
         $folder->images()->update(['folder_id' => null]);
         $folder->forceDelete();
 
         return redirect()->route('admin.dashboard')->with([
-            'success' => 'Folder "' . $folderName . '" deleted successfully!',
+            'success'    => 'Folder "' . $folderName . '" deleted successfully!',
             'active_tab' => 'gallery',
         ]);
     }
@@ -208,7 +223,6 @@ class AdminDashboardController extends Controller
      */
     public function storeGallery(Request $request)
     {
-        // Support both multiple images (images[]) or single image upload
         $images = $request->file('images');
         if (!$images && $request->hasFile('image')) {
             $images = [$request->file('image')];
@@ -226,8 +240,8 @@ class AdminDashboardController extends Controller
             $folder = GalleryFolder::find($request->folder_id);
         }
 
-        $folderName = $folder ? $folder->name : 'PCBA Gallery';
-        $uploadedCount = 0;
+        $folderName       = $folder ? $folder->name : 'PCBA Gallery';
+        $uploadedCount    = 0;
         $allowedExtensions = ['jpeg', 'jpg', 'png', 'gif', 'webp', 'svg', 'bmp', 'avif', 'ico', 'heic', 'heif', 'tiff', 'tif'];
 
         foreach ($images as $file) {
@@ -240,20 +254,20 @@ class AdminDashboardController extends Controller
                 continue;
             }
 
-            // Derive nice clean title from filename if title not provided
-            $origName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $origName   = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $cleanTitle = ucwords(str_replace(['-', '_'], ' ', $origName));
             if (empty(trim($cleanTitle))) {
                 $cleanTitle = $folder ? $folder->name : 'Gallery Photo';
             }
 
-            $path = $file->store('gallery', 'public');
+            $filename = time() . '_' . uniqid() . '.' . $ext;
+            $file->move(public_path('uploads/gallery'), $filename);
 
             GalleryImage::create([
                 'folder_id'  => $request->folder_id ?: null,
                 'title'      => $cleanTitle,
                 'category'   => $folderName,
-                'image_path' => 'storage/' . $path,
+                'image_path' => 'uploads/gallery/' . $filename,
             ]);
 
             $uploadedCount++;
@@ -266,8 +280,8 @@ class AdminDashboardController extends Controller
                 ->with('error', 'No valid images could be uploaded. Please ensure the files are valid images.');
         }
 
-        $msg = $uploadedCount === 1 
-            ? '1 photo uploaded successfully!' 
+        $msg = $uploadedCount === 1
+            ? '1 photo uploaded successfully!'
             : $uploadedCount . ' photos uploaded successfully to ' . ($folder ? '"' . $folder->name . '"' : 'gallery') . '!';
 
         return redirect()->route('admin.dashboard')->with([
@@ -281,9 +295,9 @@ class AdminDashboardController extends Controller
      */
     public function destroyGallery(GalleryImage $galleryImage)
     {
-        $galleryImage->delete(); //  delete
+        $galleryImage->delete();
         return redirect()->route('admin.dashboard')->with([
-            'success' => 'Gallery image deleted successfully!',
+            'success'    => 'Gallery image deleted successfully!',
             'active_tab' => 'gallery',
         ]);
     }
@@ -295,14 +309,14 @@ class AdminDashboardController extends Controller
     {
         if ($member->role === 'admin') {
             return redirect()->route('admin.dashboard')->with([
-                'error' => 'Cannot delete an administrator.',
+                'error'      => 'Cannot delete an administrator.',
                 'active_tab' => 'members',
             ]);
         }
 
-        $member->delete(); //  delete
+        $member->delete();
         return redirect()->route('admin.dashboard')->with([
-            'success' => 'Member deleted successfully!',
+            'success'    => 'Member deleted successfully!',
             'active_tab' => 'members',
         ]);
     }
@@ -319,16 +333,13 @@ class AdminDashboardController extends Controller
         $pass->update(['pass_status' => $request->pass_status]);
 
         return redirect()->route('admin.dashboard')->with([
-            'success' => 'CFS Pass status updated to ' . $request->pass_status,
+            'success'    => 'CFS Pass status updated to ' . $request->pass_status,
             'active_tab' => 'passes',
         ]);
     }
 
     /* ── CIRCULARS ──────────────────────────────────────────────────────── */
 
-    /**
-     * Store a new circular / bulletin.
-     */
     public function storeCircular(Request $request)
     {
         $validated = $request->validate([
@@ -340,8 +351,8 @@ class AdminDashboardController extends Controller
             'published_at' => 'nullable|date',
         ]);
 
-        $validated['user_id']   = auth()->id();
-        $validated['is_active'] = true;
+        $validated['user_id']      = auth()->id();
+        $validated['is_active']    = true;
         $validated['published_at'] = $validated['published_at'] ?? now()->toDateString();
 
         Circular::create($validated);
@@ -352,9 +363,6 @@ class AdminDashboardController extends Controller
         ]);
     }
 
-    /**
-     * Toggle the active/inactive status of a circular.
-     */
     public function toggleCircular(Circular $circular)
     {
         $circular->update(['is_active' => !$circular->is_active]);
@@ -365,9 +373,6 @@ class AdminDashboardController extends Controller
         ]);
     }
 
-    /**
-     * Delete a circular.
-     */
     public function destroyCircular(Circular $circular)
     {
         $circular->delete();
@@ -375,6 +380,19 @@ class AdminDashboardController extends Controller
         return redirect()->route('admin.dashboard')->with([
             'success'    => 'Circular removed.',
             'active_tab' => 'circulars',
+        ]);
+    }
+
+    /**
+     * Delete a membership application.
+     */
+    public function destroyApplication(MembershipApplication $application)
+    {
+        $application->delete();
+
+        return redirect()->route('admin.dashboard')->with([
+            'success'    => 'Application deleted successfully!',
+            'active_tab' => 'applications',
         ]);
     }
 }

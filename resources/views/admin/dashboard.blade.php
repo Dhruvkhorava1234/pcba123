@@ -191,44 +191,78 @@
                             <i class="bi bi-megaphone-fill text-danger me-1"></i> Circulars & Bulletins ({{ $circularsCount }})
                         </button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-dark border-0 py-3 px-4 {{ $curTab === 'applications' ? 'active border-bottom border-danger border-3 text-danger' : '' }}" id="applications-tab" data-bs-toggle="tab" data-bs-target="#tab-applications" type="button" role="tab">
+                            <i class="bi bi-file-earmark-person-fill text-info me-1"></i> Membership Applications ({{ $applicationsCount }})
+                        </button>
+                    </li>
                 </ul>
             </div>
 
             <div class="card-body p-4">
                 <div class="tab-content" id="adminTabContent">
-                    
-                    <!-- TAB 1: MEMBERS DIRECTORY -->
+                                       <!-- TAB 1: MEMBERS DIRECTORY -->
                     <div class="tab-pane fade {{ $curTab === 'members' ? 'show active' : '' }}" id="tab-members" role="tabpanel">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h4 class="h5 fw-bold text-dark mb-0">Registered Association Members</h4>
-                            <span class="badge bg-light text-dark border">Delete Enabled</span>
+                            <div>
+                                <h4 class="h5 fw-bold text-dark mb-0">Registered Association Members</h4>
+                                <span class="text-muted small">Official directory members. Click on any member name to view their full details.</span>
+                            </div>
+                            <span class="badge bg-light text-dark border">{{ $membersCount }} Total</span>
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle border">
+                            <table class="table table-hover align-middle border bg-white shadow-sm rounded-2">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>ID</th>
+                                        <th style="width: 50px;">ID</th>
                                         <th>Member / Firm Name</th>
                                         <th>Registered Email</th>
                                         <th>Role</th>
                                         <th>Joined On</th>
-                                        <th class="text-end">Action (Delete)</th>
+                                        <th class="text-end" style="width: 170px;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse($members as $m)
+                                        @php
+                                            $appMatch = isset($appsByEmail) ? $appsByEmail->get(strtolower(trim($m->email))) : null;
+                                        @endphp
                                         <tr>
                                             <td class="fw-bold text-muted">#{{ $m->id }}</td>
                                             <td>
-                                                <div class="fw-bold text-dark">{{ $m->name }}</div>
+                                                @if($appMatch)
+                                                    <button type="button" class="btn btn-link p-0 text-start fw-bold text-primary text-decoration-none d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#appDetailModal_{{ $appMatch->id }}" title="Click to view full application details">
+                                                        <i class="bi bi-building text-danger"></i>
+                                                        <span>{{ $m->name }}</span>
+                                                        <i class="bi bi-box-arrow-up-right ms-1 text-muted" style="font-size:0.75rem;"></i>
+                                                    </button>
+                                                    <div class="small text-muted"><i class="bi bi-patch-check-fill text-success me-1"></i>Membership Form Submitted (#{{ $appMatch->application_no }})</div>
+                                                @else
+                                                    <button type="button" class="btn btn-link p-0 text-start fw-bold text-dark text-decoration-none d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#userProfileModal_{{ $m->id }}" title="Click to view member profile">
+                                                        <i class="bi bi-person-circle text-secondary"></i>
+                                                        <span>{{ $m->name }}</span>
+                                                        <i class="bi bi-info-circle ms-1 text-muted" style="font-size:0.75rem;"></i>
+                                                    </button>
+                                                @endif
                                             </td>
-                                            <td>{{ $m->email }}</td>
+                                            <td><a href="mailto:{{ $m->email }}" class="text-decoration-none text-muted">{{ $m->email }}</a></td>
                                             <td><span class="badge bg-success">Member</span></td>
                                             <td class="text-muted small">{{ $m->created_at->format('d M Y') }}</td>
                                             <td class="text-end">
-                                                <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2.5" onclick="triggerAnimatedDelete('{{ route('admin.members.destroy', $m->id) }}', '{{ addslashes($m->name) }}')">
-                                                    <i class="bi bi-trash3 me-1"></i> Delete
-                                                </button>
+                                                <div class="d-inline-flex gap-1">
+                                                    @if($appMatch)
+                                                        <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2.5" data-bs-toggle="modal" data-bs-target="#appDetailModal_{{ $appMatch->id }}" title="View Full Application Details">
+                                                            <i class="bi bi-eye me-1"></i> Details
+                                                        </button>
+                                                    @else
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2.5" data-bs-toggle="modal" data-bs-target="#userProfileModal_{{ $m->id }}" title="View Member Profile">
+                                                            <i class="bi bi-person-lines-fill me-1"></i> Profile
+                                                        </button>
+                                                    @endif
+                                                    <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2" onclick="triggerAnimatedDelete('{{ route('admin.members.destroy', $m->id) }}', '{{ addslashes($m->name) }}')">
+                                                        <i class="bi bi-trash3"></i>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     @empty
@@ -240,6 +274,139 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- TAB: MEMBERSHIP APPLICATIONS -->
+                    <div class="tab-pane fade {{ $curTab === 'applications' ? 'show active' : '' }}" id="tab-applications" role="tabpanel">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom">
+                            <div>
+                                <h4 class="h5 fw-bold text-dark mb-0">
+                                    <i class="bi bi-card-heading text-danger me-2"></i>Membership Applications
+                                </h4>
+                                <span class="text-muted small">Listed <strong>membership name wise</strong>. Click any member / firm name or "Details" to view all submitted form details and documents.</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 fw-bold">
+                                    <i class="bi bi-people-fill me-1"></i> {{ $applicationsCount }} Applications
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Live Filter & Search Controls -->
+                        <div class="card border-0 bg-light p-3 mb-3 rounded-3">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-md-6 col-lg-5">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                                        <input type="text" id="appSearchInput" class="form-control border-start-0" placeholder="Search by Member Name, Authorized Person, City, Email...">
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-7 d-flex justify-content-md-end gap-1 flex-wrap">
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Status filter">
+                                        <button type="button" class="btn btn-outline-dark active" onclick="filterAppStatus('all', this)">All ({{ $applicationsCount }})</button>
+                                        <button type="button" class="btn btn-outline-success" onclick="filterAppStatus('Completed', this)">
+                                            Paid ({{ $membershipApplications->where('payment_status', 'Completed')->count() }})
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning" onclick="filterAppStatus('Pending', this)">
+                                            Pending ({{ $membershipApplications->where('payment_status', 'Pending')->count() }})
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" onclick="filterAppStatus('Failed', this)">
+                                            Failed ({{ $membershipApplications->where('payment_status', 'Failed')->count() }})
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Membership Applications Table (Name Wise) -->
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle border bg-white shadow-sm rounded-2" id="membershipApplicationsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 50px;">#</th>
+                                        <th>Member / Firm Name</th>
+                                        <th>Authorized Person</th>
+                                        <th>Contact Details</th>
+                                        <th>City & Type</th>
+                                        <th>Fee & Status</th>
+                                        <th>Submitted</th>
+                                        <th class="text-end" style="width: 170px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($membershipApplications as $index => $app)
+                                        @php
+                                            $payload = $app->form_payload ?? [];
+                                            $docs = $payload['uploaded_documents'] ?? [];
+                                            $docCount = count($docs);
+                                        @endphp
+                                        <tr class="app-row" data-status="{{ $app->payment_status }}" data-name="{{ strtolower($app->company_name) }}" data-person="{{ strtolower($app->authorized_person) }}" data-city="{{ strtolower($app->city) }}" data-email="{{ strtolower($app->email) }}" data-mobile="{{ $app->mobile }}" data-appno="{{ strtolower($app->application_no) }}">
+                                            <td class="text-muted fw-bold">{{ $index + 1 }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-link p-0 text-start fw-bold text-primary text-decoration-none fs-6 d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#appDetailModal_{{ $app->id }}" title="Click to view all membership details">
+                                                    <i class="bi bi-building text-danger"></i>
+                                                    <span>{{ $app->company_name }}</span>
+                                                    <i class="bi bi-box-arrow-up-right text-muted small" style="font-size:0.75rem;"></i>
+                                                </button>
+                                                <div class="d-flex align-items-center gap-2 mt-1">
+                                                    <span class="badge bg-light text-muted border font-monospace" style="font-size:0.72rem;">#{{ $app->application_no }}</span>
+                                                    @if($docCount > 0)
+                                                        <span class="badge bg-info-subtle text-info border border-info-subtle" style="font-size:0.7rem;"><i class="bi bi-paperclip me-0.5"></i>{{ $docCount }} docs</span>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="fw-semibold text-dark">{{ $app->authorized_person ?? '—' }}</div>
+                                                <div class="small text-muted">{{ $app->authorized_designation ?? '—' }}</div>
+                                            </td>
+                                            <td>
+                                                <div><a href="mailto:{{ $app->email }}" class="text-decoration-none text-muted small"><i class="bi bi-envelope me-1"></i>{{ $app->email }}</a></div>
+                                                <div><a href="tel:{{ $app->mobile }}" class="text-decoration-none text-muted small"><i class="bi bi-telephone me-1"></i>{{ $app->mobile }}</a></div>
+                                            </td>
+                                            <td>
+                                                <div class="fw-semibold text-dark">{{ $app->city ?? '—' }}</div>
+                                                <div class="d-flex gap-1 mt-0.5">
+                                                    <span class="badge bg-light text-dark border" style="font-size:0.7rem;">{{ $app->office_type ?? 'Office' }}</span>
+                                                    <span class="badge bg-light text-muted border" style="font-size:0.7rem;">{{ $app->company_type ?? 'Firm' }}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold text-success" style="font-size:0.88rem;">₹{{ number_format($app->fee_amount, 2) }}</div>
+                                                @if($app->payment_status === 'Completed')
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5" style="font-size:0.72rem;"><i class="bi bi-check-circle-fill me-1"></i>Completed</span>
+                                                @elseif($app->payment_status === 'Failed')
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-0.5" style="font-size:0.72rem;"><i class="bi bi-x-circle-fill me-1"></i>Failed</span>
+                                                @else
+                                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-0.5" style="font-size:0.72rem;"><i class="bi bi-clock-history me-1"></i>Pending</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <span class="text-muted small d-block">{{ $app->created_at->format('d M Y') }}</span>
+                                                <span class="text-muted" style="font-size:0.72rem;">{{ $app->created_at->format('h:i A') }}</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="d-inline-flex gap-1">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2.5" data-bs-toggle="modal" data-bs-target="#appDetailModal_{{ $app->id }}" title="View All Details">
+                                                        <i class="bi bi-eye me-1"></i> Details
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2" onclick="triggerAnimatedDelete('{{ route('admin.applications.destroy', $app->id) }}', '{{ addslashes($app->company_name) }}')" title="Delete Application">
+                                                        <i class="bi bi-trash3"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr id="noAppsRow">
+                                            <td colspan="8" class="text-center py-5 text-muted">
+                                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                                No membership applications submitted yet.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
 
                     <!-- TAB 2: EVENTS MANAGER -->
                     <div class="tab-pane fade {{ $curTab === 'events' ? 'show active' : '' }}" id="tab-events" role="tabpanel">
@@ -752,6 +919,437 @@
     </div>
 </div>
 
+<!-- ============================================================== -->
+<!-- MEMBERSHIP APPLICATION DETAILS MODALS (CLICK MEMBER NAME TO VIEW) -->
+<!-- ============================================================== -->
+@foreach($membershipApplications as $app)
+@php
+    $payload = $app->form_payload ?? [];
+    $docs = $payload['uploaded_documents'] ?? [];
+    $docLabels = [
+        'license_copy'            => 'Customs Licence Copy',
+        'authorized_person_photo' => 'Authorized Person Photo',
+        'license_exam_copy'       => 'Licence Examination Copy',
+        'pan_card'                => 'Income Tax PAN Card',
+        'gst_copy'                => 'GST Registration Certificate',
+        'f_card_copy'             => 'Customs F-Card Copy',
+        'company_logo'            => 'Company Logo / Letterhead',
+    ];
+@endphp
+<div class="modal fade" id="appDetailModal_{{ $app->id }}" tabindex="-1" aria-labelledby="appDetailModalLabel_{{ $app->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden">
+            <!-- Modal Header -->
+            <div class="modal-header text-white py-3 px-4" style="background: linear-gradient(135deg, #091724 0%, #17374a 100%);">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-danger text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 44px; height: 44px; font-size: 1.35rem;">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <h5 class="modal-title fw-bold text-white mb-0" id="appDetailModalLabel_{{ $app->id }}">
+                                {{ $app->company_name }}
+                            </h5>
+                            @if($app->payment_status === 'Completed')
+                                <span class="badge bg-success text-white px-2.5 py-1"><i class="bi bi-check-circle-fill me-1"></i>Completed / Paid</span>
+                            @elseif($app->payment_status === 'Failed')
+                                <span class="badge bg-danger text-white px-2.5 py-1"><i class="bi bi-x-circle-fill me-1"></i>Failed</span>
+                            @else
+                                <span class="badge bg-warning text-dark px-2.5 py-1"><i class="bi bi-clock-history me-1"></i>Pending</span>
+                            @endif
+                            <span class="badge bg-white text-dark border px-2 py-1 font-monospace">#{{ $app->application_no }}</span>
+                        </div>
+                        <div class="small text-white-50 mt-0.5">
+                            <i class="bi bi-geo-alt me-1"></i>{{ $app->city ?? 'Gujarat' }} &bull; Office: {{ $app->office_type ?? 'Main Office' }} &bull; Applied: {{ $app->created_at->format('d M Y, h:i A') }}
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body p-4 bg-light">
+                <!-- Summary Metric Cards -->
+                <div class="row g-2 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="bg-white p-2.5 rounded-2 border shadow-xs text-center">
+                            <span class="text-muted d-block small text-uppercase fw-semibold" style="font-size:0.7rem;">Office Type</span>
+                            <span class="fw-bold text-dark">{{ $app->office_type ?? '—' }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="bg-white p-2.5 rounded-2 border shadow-xs text-center">
+                            <span class="text-muted d-block small text-uppercase fw-semibold" style="font-size:0.7rem;">Constitution</span>
+                            <span class="fw-bold text-dark">{{ $app->company_type ?? '—' }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="bg-white p-2.5 rounded-2 border shadow-xs text-center">
+                            <span class="text-muted d-block small text-uppercase fw-semibold" style="font-size:0.7rem;">Membership Fee</span>
+                            <span class="fw-bold text-success">₹{{ number_format($app->fee_amount, 2) }}</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="bg-white p-2.5 rounded-2 border shadow-xs text-center">
+                            <span class="text-muted d-block small text-uppercase fw-semibold" style="font-size:0.7rem;">Documents</span>
+                            <span class="fw-bold text-primary">{{ count($docs) }} Attached</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <!-- SECTION 1: Company & Office Details -->
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow-sm rounded-3 h-100">
+                            <div class="card-header bg-white py-2.5 px-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="bi bi-building text-danger fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Company & Office Details</h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="row g-2.5">
+                                    <div class="col-12">
+                                        <span class="text-muted small d-block">Company / Firm Name</span>
+                                        <div class="fw-bold text-dark fs-6">{{ $app->company_name }}</div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="text-muted small d-block">Office Type</span>
+                                        <div class="fw-semibold text-dark">{{ $app->office_type ?? '—' }}</div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="text-muted small d-block">Company Type / Constitution</span>
+                                        <div class="fw-semibold text-dark">{{ $app->company_type ?? '—' }}</div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="text-muted small d-block">City</span>
+                                        <div class="fw-semibold text-dark">{{ $app->city ?? '—' }}</div>
+                                    </div>
+                                    <div class="col-12">
+                                        <span class="text-muted small d-block">Registered Office Address</span>
+                                        <div class="fw-semibold text-dark bg-light p-2 rounded border small">{{ $app->address ?? '—' }}</div>
+                                    </div>
+                                    @if($app->correspondence_address)
+                                    <div class="col-12">
+                                        <span class="text-muted small d-block">Correspondence Address</span>
+                                        <div class="fw-semibold text-dark bg-light p-2 rounded border small">
+                                            {{ $app->correspondence_address }}
+                                            @if($app->correspondence_city)
+                                                <div class="text-muted mt-1"><strong>City:</strong> {{ $app->correspondence_city }}</div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: Authorized Person & Contacts -->
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow-sm rounded-3 h-100">
+                            <div class="card-header bg-white py-2.5 px-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="bi bi-person-badge-fill text-primary fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Authorized Representative</h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="row g-2.5">
+                                    <div class="col-sm-6">
+                                        <span class="text-muted small d-block">Authorized Person Name</span>
+                                        <div class="fw-bold text-dark fs-6">{{ $app->authorized_person ?? '—' }}</div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="text-muted small d-block">Designation</span>
+                                        <div class="fw-semibold text-dark">{{ $app->authorized_designation ?? '—' }}</div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="text-muted small d-block">Official Email</span>
+                                        <a href="mailto:{{ $app->email }}" class="fw-semibold text-primary text-decoration-none small">
+                                            <i class="bi bi-envelope me-1"></i>{{ $app->email ?? '—' }}
+                                        </a>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <span class="text-muted small d-block">Mobile Number</span>
+                                        <a href="tel:{{ $app->mobile }}" class="fw-semibold text-dark text-decoration-none small">
+                                            <i class="bi bi-telephone me-1"></i>{{ $app->mobile ?? '—' }}
+                                        </a>
+                                    </div>
+                                    @if(!empty($payload['tel_no']))
+                                    <div class="col-sm-6">
+                                        <span class="text-muted small d-block">Telephone / Landline</span>
+                                        <div class="fw-semibold text-dark small">{{ $payload['tel_no'] }}</div>
+                                    </div>
+                                    @endif
+                                    @if(!empty($payload['website_url']))
+                                    <div class="col-sm-6">
+                                        <span class="text-muted small d-block">Website</span>
+                                        <a href="{{ $payload['website_url'] }}" target="_blank" class="fw-semibold text-primary text-decoration-none small">
+                                            <i class="bi bi-globe me-1"></i>{{ $payload['website_url'] }} <i class="bi bi-box-arrow-up-right" style="font-size:0.65rem;"></i>
+                                        </a>
+                                    </div>
+                                    @endif
+                                    @if(!empty($payload['alt_email_1']) || !empty($payload['alt_email_2']))
+                                    <div class="col-12">
+                                        <span class="text-muted small d-block">Alternative Email(s)</span>
+                                        <div class="small text-dark">
+                                            @if(!empty($payload['alt_email_1'])) <span class="badge bg-light text-dark border me-1">{{ $payload['alt_email_1'] }}</span> @endif
+                                            @if(!empty($payload['alt_email_2'])) <span class="badge bg-light text-dark border">{{ $payload['alt_email_2'] }}</span> @endif
+                                        </div>
+                                    </div>
+                                    @endif
+                                    @if(!empty($payload['alt_mobile_1']) || !empty($payload['alt_mobile_2']))
+                                    <div class="col-12">
+                                        <span class="text-muted small d-block">Alternative Mobile(s)</span>
+                                        <div class="small text-dark">
+                                            @if(!empty($payload['alt_mobile_1'])) <span class="badge bg-light text-dark border me-1">{{ $payload['alt_mobile_1'] }}</span> @endif
+                                            @if(!empty($payload['alt_mobile_2'])) <span class="badge bg-light text-dark border">{{ $payload['alt_mobile_2'] }}</span> @endif
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: Business & Customs License Details -->
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm rounded-3">
+                            <div class="card-header bg-white py-2.5 px-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="bi bi-briefcase-fill text-warning fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Customs Broker & Business License Information</h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="row g-3">
+                                    <div class="col-sm-4 col-md-3">
+                                        <span class="text-muted small d-block">Customs License No</span>
+                                        <span class="badge bg-dark px-2.5 py-1.5 fs-7 font-monospace">{{ $app->customs_license_no ?? '—' }}</span>
+                                    </div>
+                                    <div class="col-sm-4 col-md-3">
+                                        <span class="text-muted small d-block">Income Tax PAN</span>
+                                        <span class="fw-bold text-dark font-monospace">{{ $app->pan_number ?? '—' }}</span>
+                                    </div>
+                                    <div class="col-sm-4 col-md-3">
+                                        <span class="text-muted small d-block">GSTIN Number</span>
+                                        <span class="fw-bold text-dark font-monospace">{{ $app->gstin_number ?? ($payload['gst_no'] ?? '—') }}</span>
+                                    </div>
+                                    <div class="col-sm-4 col-md-3">
+                                        <span class="text-muted small d-block">Parent Customs House</span>
+                                        <span class="fw-semibold text-dark">{{ $payload['parent_customs_house'] ?? '—' }}</span>
+                                    </div>
+
+                                    @if(!empty($payload['old_cha_no']) || !empty($payload['old_cha_date']))
+                                    <div class="col-sm-6 col-md-3">
+                                        <span class="text-muted small d-block">Old CHA No & Date</span>
+                                        <span class="fw-semibold text-dark small">{{ $payload['old_cha_no'] ?? '—' }} @if(!empty($payload['old_cha_date'])) ({{ $payload['old_cha_date'] }}) @endif</span>
+                                    </div>
+                                    @endif
+
+                                    @if(!empty($payload['new_cha_no']) || !empty($payload['new_cha_date']))
+                                    <div class="col-sm-6 col-md-3">
+                                        <span class="text-muted small d-block">New CHA No & Date</span>
+                                        <span class="fw-semibold text-dark small">{{ $payload['new_cha_no'] ?? '—' }} @if(!empty($payload['new_cha_date'])) ({{ $payload['new_cha_date'] }}) @endif</span>
+                                    </div>
+                                    @endif
+
+                                    <div class="col-sm-4 col-md-2">
+                                        <span class="text-muted small d-block">Total Employees</span>
+                                        <span class="fw-bold text-dark">{{ $payload['total_emp'] ?? '—' }}</span>
+                                    </div>
+                                    <div class="col-sm-4 col-md-2">
+                                        <span class="text-muted small d-block">Emp with Pass</span>
+                                        <span class="fw-bold text-success">{{ $payload['emp_with_pass'] ?? '—' }}</span>
+                                    </div>
+                                    <div class="col-sm-4 col-md-2">
+                                        <span class="text-muted small d-block">Emp without Pass</span>
+                                        <span class="fw-bold text-secondary">{{ $payload['emp_without_pass'] ?? '—' }}</span>
+                                    </div>
+
+                                    @if(!empty($payload['custom_stations']))
+                                    <div class="col-12">
+                                        <span class="text-muted small d-block mb-1">Custom Stations of Operation</span>
+                                        @if(is_array($payload['custom_stations']))
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @foreach($payload['custom_stations'] as $stn)
+                                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">{{ $stn }}</span>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="fw-semibold text-dark">{{ $payload['custom_stations'] }}</span>
+                                        @endif
+                                    </div>
+                                    @endif
+
+                                    @if(!empty($payload['member_of_association']))
+                                    <div class="col-sm-6">
+                                        <span class="text-muted small d-block">Other Association Memberships</span>
+                                        <span class="fw-semibold text-dark small">{{ $payload['member_of_association'] }}</span>
+                                    </div>
+                                    @endif
+
+                                    @if(!empty($payload['agent_no']) || !empty($payload['agent_service_type']))
+                                    <div class="col-sm-6">
+                                        <span class="text-muted small d-block">Agent Info</span>
+                                        <span class="fw-semibold text-dark small">No: {{ $payload['agent_no'] ?? '—' }} &bull; Service: {{ $payload['agent_service_type'] ?? '—' }}</span>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 4: Uploaded Documents & Photos -->
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm rounded-3">
+                            <div class="card-header bg-white py-2.5 px-3 border-bottom d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-paperclip text-info fs-5"></i>
+                                    <h6 class="fw-bold mb-0 text-dark">Uploaded Verification Documents & Photos</h6>
+                                </div>
+                                <span class="badge bg-light text-dark border">{{ count($docs) }} Uploaded</span>
+                            </div>
+                            <div class="card-body p-3">
+                                @if(!empty($docs))
+                                <div class="row g-3">
+                                    @foreach($docs as $docKey => $docPath)
+                                        @php
+                                            $label = $docLabels[$docKey] ?? ucwords(str_replace('_', ' ', $docKey));
+                                            $ext = strtolower(pathinfo($docPath, PATHINFO_EXTENSION));
+                                            $isImg = in_array($ext, ['jpg','jpeg','png','gif','webp','bmp']);
+                                        @endphp
+                                        <div class="col-sm-6 col-md-4 col-lg-3">
+                                            <div class="border rounded-3 p-3 bg-white h-100 d-flex flex-column align-items-center text-center shadow-xs">
+                                                <div class="mb-2 d-flex align-items-center justify-content-center" style="width: 100%; height: 110px; background: #f8fafc; border-radius: 6px; overflow: hidden;">
+                                                    @if($isImg)
+                                                        <a href="{{ asset($docPath) }}" target="_blank" title="Click to view full image">
+                                                            <img src="{{ asset($docPath) }}" alt="{{ $label }}" style="max-height: 105px; max-width: 100%; object-fit: contain;">
+                                                        </a>
+                                                    @else
+                                                        <a href="{{ asset($docPath) }}" target="_blank" class="text-decoration-none">
+                                                            <i class="bi bi-file-earmark-pdf-fill text-danger" style="font-size: 3.2rem;"></i>
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                                <div class="fw-semibold text-dark small mb-2 text-truncate w-100" title="{{ $label }}">{{ $label }}</div>
+                                                <div class="mt-auto w-100">
+                                                    <a href="{{ asset($docPath) }}" target="_blank" class="btn btn-sm btn-outline-primary w-100 py-1" style="font-size:0.75rem;">
+                                                        <i class="bi bi-box-arrow-up-right me-1"></i> Open Document
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                @else
+                                <div class="text-center py-4 text-muted">
+                                    <i class="bi bi-file-earmark-x fs-2 d-block mb-1"></i>
+                                    No uploaded documents submitted with this application.
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 5: Payment & Transaction Details -->
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm rounded-3">
+                            <div class="card-header bg-white py-2.5 px-3 border-bottom d-flex align-items-center gap-2">
+                                <i class="bi bi-credit-card-2-front-fill text-success fs-5"></i>
+                                <h6 class="fw-bold mb-0 text-dark">Payment & Transaction Details</h6>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="row g-3">
+                                    <div class="col-sm-6 col-md-3">
+                                        <span class="text-muted small d-block">Membership Fee</span>
+                                        <div class="h5 fw-bold text-success mb-0">₹{{ number_format($app->fee_amount, 2) }}</div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <span class="text-muted small d-block">Payment Status</span>
+                                        @if($app->payment_status === 'Completed')
+                                            <span class="badge bg-success px-2.5 py-1.5"><i class="bi bi-check-circle-fill me-1"></i>Completed / Paid</span>
+                                        @elseif($app->payment_status === 'Failed')
+                                            <span class="badge bg-danger px-2.5 py-1.5"><i class="bi bi-x-circle-fill me-1"></i>Failed</span>
+                                        @else
+                                            <span class="badge bg-warning text-dark px-2.5 py-1.5"><i class="bi bi-clock-history me-1"></i>Pending</span>
+                                        @endif
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <span class="text-muted small d-block">Razorpay Order ID</span>
+                                        <div class="fw-semibold text-dark small font-monospace">{{ $app->razorpay_order_id ?? '—' }}</div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <span class="text-muted small d-block">Razorpay Payment ID</span>
+                                        <div class="fw-semibold text-dark small font-monospace">{{ $app->razorpay_payment_id ?? '—' }}</div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <span class="text-muted small d-block">Official Receipt No</span>
+                                        <div class="fw-semibold text-dark small font-monospace">{{ $app->receipt_no ?? '—' }}</div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <span class="text-muted small d-block">Paid At</span>
+                                        <div class="fw-semibold text-dark small">{{ $app->paid_at ? $app->paid_at->format('d M Y, h:i A') : '—' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer bg-white py-2.5 px-4 d-flex justify-content-between align-items-center">
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="triggerAnimatedDelete('{{ route('admin.applications.destroy', $app->id) }}', '{{ addslashes($app->company_name) }}')">
+                    <i class="bi bi-trash3 me-1"></i> Delete Application
+                </button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="printApplicationModal('appDetailModal_{{ $app->id }}')">
+                        <i class="bi bi-printer me-1"></i> Print Details
+                    </button>
+                    <button type="button" class="btn btn-sm btn-dark px-3" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endforeach
+
+<!-- User Profile Modals for registered users in Tab 1 without application -->
+@foreach($members as $m)
+    @php
+        $hasApp = isset($appsByEmail) && $appsByEmail->has(strtolower(trim($m->email)));
+    @endphp
+    @if(!$hasApp)
+    <div class="modal fade" id="userProfileModal_{{ $m->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow rounded-3">
+                <div class="modal-header bg-dark text-white py-3 px-4">
+                    <h5 class="modal-title fw-bold text-white mb-0"><i class="bi bi-person-circle me-2"></i>{{ $m->name }}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <span class="text-muted small d-block">Member Name</span>
+                        <div class="fw-bold text-dark fs-5">{{ $m->name }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-muted small d-block">Registered Email</span>
+                        <div class="fw-semibold text-dark">{{ $m->email }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-muted small d-block">Role</span>
+                        <span class="badge bg-success">Member</span>
+                    </div>
+                    <div class="mb-3">
+                        <span class="text-muted small d-block">Registration Date</span>
+                        <div class="text-dark">{{ $m->created_at->format('d M Y, h:i A') }}</div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light py-2 px-3">
+                    <button type="button" class="btn btn-sm btn-dark" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+@endforeach
+
 <script>
 function triggerAnimatedDelete(actionUrl, itemName) {
     const modalForm = document.getElementById('globalDeleteForm');
@@ -808,6 +1406,90 @@ function previewSelectedFiles(input) {
     } else {
         previewContainer.classList.add('d-none');
     }
+}
+
+// Filter Membership Applications by status and search query
+let activeAppStatus = 'all';
+
+function filterAppStatus(status, btn) {
+    activeAppStatus = status;
+    const buttons = document.querySelectorAll('[aria-label="Status filter"] button');
+    buttons.forEach(b => b.classList.remove('active'));
+    if (btn) {
+        btn.classList.add('active');
+    }
+    applyAppFilters();
+}
+
+function applyAppFilters() {
+    const q = (document.getElementById('appSearchInput')?.value || '').toLowerCase().trim();
+    const rows = document.querySelectorAll('#membershipApplicationsTable tbody tr.app-row');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const rowStatus = row.getAttribute('data-status');
+        const matchStatus = (activeAppStatus === 'all' || rowStatus === activeAppStatus);
+
+        const rowName = row.getAttribute('data-name') || '';
+        const rowPerson = row.getAttribute('data-person') || '';
+        const rowCity = row.getAttribute('data-city') || '';
+        const rowEmail = row.getAttribute('data-email') || '';
+        const rowMobile = row.getAttribute('data-mobile') || '';
+        const rowAppNo = row.getAttribute('data-appno') || '';
+
+        const matchQuery = !q || (
+            rowName.includes(q) ||
+            rowPerson.includes(q) ||
+            rowCity.includes(q) ||
+            rowEmail.includes(q) ||
+            rowMobile.includes(q) ||
+            rowAppNo.includes(q)
+        );
+
+        if (matchStatus && matchQuery) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    const noRow = document.getElementById('noAppsRow');
+    if (noRow) {
+        noRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
+    }
+}
+
+document.getElementById('appSearchInput')?.addEventListener('input', applyAppFilters);
+
+function printApplicationModal(modalId) {
+    const modalEl = document.getElementById(modalId);
+    if (!modalEl) return;
+    const printContent = modalEl.querySelector('.modal-body').innerHTML;
+    const title = modalEl.querySelector('.modal-title').innerText;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Membership Application - ${title}</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+                <style>
+                    body { padding: 25px; font-family: sans-serif; }
+                    .card { border: 1px solid #ddd !important; margin-bottom: 15px; }
+                    .card-header { font-weight: bold; }
+                    a { text-decoration: none; color: inherit; }
+                    .badge { border: 1px solid #ccc; color: #000; }
+                </style>
+            </head>
+            <body>
+                <h3 class="mb-3 text-primary">Pipavav Customs Brokers Association (PCBA)</h3>
+                <h5 class="text-muted mb-4">Membership Application Details: ${title}</h5>
+                ${printContent}
+                <script>window.onload = function() { window.print(); window.close(); }<\/script>
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
 }
 
 // Preserve active tab on tab clicks via local storage or URL hash

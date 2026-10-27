@@ -113,6 +113,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/circulars', [\App\Http\Controllers\AdminDashboardController::class, 'storeCircular'])->name('circulars.store');
     Route::patch('/circulars/{circular}/toggle', [\App\Http\Controllers\AdminDashboardController::class, 'toggleCircular'])->name('circulars.toggle');
     Route::delete('/circulars/{circular}', [\App\Http\Controllers\AdminDashboardController::class, 'destroyCircular'])->name('circulars.destroy');
+    // Membership Applications
+    Route::delete('/applications/{application}', [\App\Http\Controllers\AdminDashboardController::class, 'destroyApplication'])->name('applications.destroy');
+    Route::patch('/events/{event}', [\App\Http\Controllers\AdminDashboardController::class, 'updateEvent'])->name('events.update');
 });
 
 // Public Circulars Page
