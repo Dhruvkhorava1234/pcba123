@@ -871,16 +871,29 @@
                         <label class="form-label small fw-bold">Choose Photos <span class="text-danger">*</span></label>
                         <input type="file" class="form-control" name="images[]" multiple accept="image/*,.jpg,.jpeg,.png,.webp,.svg,.gif,.bmp,.avif,.ico,.tiff,.tif" required id="galleryMultiInput" onchange="previewSelectedFiles(this)">
                         <div class="d-flex justify-content-between align-items-center mt-1">
-                            <span class="text-muted small">You can select multiple photos at once.</span>
+                            <span class="text-muted small">Automatic instant optimization enabled for high-speed upload.</span>
                             <span class="badge bg-primary-subtle text-primary small" id="selectedFilesCount">0 selected</span>
                         </div>
                     </div>
+
+                    <!-- Upload & Compression Progress Box -->
+                    <div id="galleryUploadProgressBox" class="p-3 mb-3 bg-light rounded-3 border d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-bold text-dark" id="galleryProgressStatus">Preparing photos...</span>
+                            <span class="small fw-bold text-primary" id="galleryProgressPercent">0%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" id="galleryProgressBar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <div class="small text-muted mt-1" id="galleryProgressDetail" style="font-size: 0.75rem;">Optimizing large camera images before sending to server...</div>
+                    </div>
+
                     <div id="selectedFilesPreview" class="d-flex flex-wrap gap-2 mt-2 pt-2 border-top d-none" style="max-height: 140px; overflow-y: auto;">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn text-white fw-bold" style="background-color: #0b2530;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelGalleryUploadBtn">Cancel</button>
+                    <button type="submit" class="btn text-white fw-bold" style="background-color: #0b2530;" id="submitGalleryUploadBtn">
                         <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload Photos
                     </button>
                 </div>
@@ -1407,6 +1420,165 @@ function previewSelectedFiles(input) {
         previewContainer.classList.add('d-none');
     }
 }
+
+// Client-Side Image Compression for 10x faster uploads
+async function compressImageFile(file, maxWidth = 1920, maxHeight = 1920, quality = 0.82) {
+    // Only compress standard images (JPEG, PNG, WEBP, BMP)
+    if (!file.type.match(/image\/(jpeg|png|webp|bmp)/i)) {
+        return file;
+    }
+    // If the file is already tiny (less than 300KB), no need to compress
+    if (file.size < 300 * 1024) {
+        return file;
+    }
+
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth || height > maxHeight) {
+                    if (width > height) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    } else {
+                        width = Math.round((width * maxHeight) / height);
+                        height = maxHeight;
+                    }
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob((blob) => {
+                    if (!blob || blob.size >= file.size) {
+                        resolve(file); // Keep original if compression didn't help
+                    } else {
+                        const newFile = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+                        resolve(newFile);
+                    }
+                }, 'image/jpeg', quality);
+            };
+            img.onerror = () => resolve(file);
+            img.src = e.target.result;
+        };
+        reader.onerror = () => resolve(file);
+        reader.readAsDataURL(file);
+    });
+}
+
+// Intercept Gallery Upload Form to Compress & Show Real-Time Progress
+document.addEventListener('DOMContentLoaded', function () {
+    const galleryForm = document.querySelector('#uploadGalleryModal form');
+    const input = document.getElementById('galleryMultiInput');
+    const progressBox = document.getElementById('galleryUploadProgressBox');
+    const progressBar = document.getElementById('galleryProgressBar');
+    const progressStatus = document.getElementById('galleryProgressStatus');
+    const progressPercent = document.getElementById('galleryProgressPercent');
+    const progressDetail = document.getElementById('galleryProgressDetail');
+    const submitBtn = document.getElementById('submitGalleryUploadBtn');
+    const cancelBtn = document.getElementById('cancelGalleryUploadBtn');
+
+    if (!galleryForm || !input) return;
+
+    galleryForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const files = input.files;
+        if (!files || files.length === 0) {
+            alert('Please select at least one photo.');
+            return;
+        }
+
+        // Show progress UI and disable controls
+        submitBtn.disabled = true;
+        cancelBtn.classList.add('disabled');
+        input.disabled = true;
+        progressBox.classList.remove('d-none');
+        progressBar.style.width = '0%';
+        progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated bg-info';
+
+        const formData = new FormData();
+        const csrfToken = galleryForm.querySelector('input[name="_token"]')?.value;
+        const folderId = document.getElementById('uploadFolderSelect')?.value;
+
+        if (csrfToken) formData.append('_token', csrfToken);
+        if (folderId) formData.append('folder_id', folderId);
+
+        // 1. Instant Client-Side Compression
+        progressStatus.innerText = 'Optimizing photos for high-speed upload...';
+        progressDetail.innerText = 'Compressing high-resolution images in browser...';
+
+        for (let i = 0; i < files.length; i++) {
+            const rawFile = files[i];
+            const compPercent = Math.round(((i + 1) / files.length) * 30);
+            progressBar.style.width = compPercent + '%';
+            progressPercent.innerText = compPercent + '%';
+            progressDetail.innerText = `Optimizing (${i + 1}/${files.length}): ${rawFile.name}`;
+
+            try {
+                const optimizedFile = await compressImageFile(rawFile);
+                formData.append('images[]', optimizedFile, rawFile.name);
+            } catch (err) {
+                formData.append('images[]', rawFile, rawFile.name);
+            }
+        }
+
+        // 2. High Speed AJAX Upload with Live Progress
+        progressStatus.innerText = 'Uploading to Hostinger server...';
+        progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated bg-success';
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', galleryForm.action, true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+        xhr.upload.onprogress = function (e) {
+            if (e.lengthComputable) {
+                // Scale upload from 30% to 100%
+                const uploadPercent = Math.round(30 + ((e.loaded / e.total) * 70));
+                progressBar.style.width = uploadPercent + '%';
+                progressPercent.innerText = uploadPercent + '%';
+                const mbUploaded = (e.loaded / (1024 * 1024)).toFixed(1);
+                const mbTotal = (e.total / (1024 * 1024)).toFixed(1);
+                progressDetail.innerText = `Transferred ${mbUploaded}MB of ${mbTotal}MB (${uploadPercent}%)`;
+            }
+        };
+
+        xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 400) {
+                progressBar.style.width = '100%';
+                progressPercent.innerText = '100%';
+                progressStatus.innerText = 'Success! Reloading gallery...';
+                window.location.reload();
+            } else {
+                alert('Upload encountered an issue. Status code: ' + xhr.status + '. Please check server logs or PHP upload limits.');
+                submitBtn.disabled = false;
+                cancelBtn.classList.remove('disabled');
+                input.disabled = false;
+                progressBox.classList.add('d-none');
+            }
+        };
+
+        xhr.onerror = function () {
+            alert('Upload failed. Please verify your internet connection or Hostinger PHP limits (upload_max_filesize).');
+            submitBtn.disabled = false;
+            cancelBtn.classList.remove('disabled');
+            input.disabled = false;
+            progressBox.classList.add('d-none');
+        };
+
+        xhr.send(formData);
+    });
+});
 
 // Filter Membership Applications by status and search query
 let activeAppStatus = 'all';

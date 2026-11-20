@@ -323,12 +323,12 @@
                     <p class="footer-brand-desc">
                         Professional association representing Customs Brokers operating at Pipavav Port, Gujarat. Established in 2014 & Member Association of the Federation of Freight Forwarders’ Associations in India (FFFAI) & FCBA.
                     </p>
-                    <div class="social-links">
+                    <!-- <div class="social-links">
                         <a href="#" class="social-link" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
                         <a href="#" class="social-link" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
                         <a href="#" class="social-link" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
                         <a href="mailto:info@pcbapipavav.org" class="social-link" aria-label="Email"><i class="bi bi-envelope"></i></a>
-                    </div>
+                    </div> -->
                 </div>
 
                 <!-- Col 2: Navigation Links -->
@@ -385,12 +385,12 @@
             <div class="footer-bottom">
                 <div class="row align-items-center">
                     <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
-                        <p class="mb-0">
-                            &copy; {{ date('Y') }} <strong>Pipavav Customs Brokers Association (PCBA)</strong>. All rights reserved.
+                        <p class="mb-0 text-white-50">
+                            &copy; {{ date('Y') }} <strong class="text-white">Pipavav Customs Brokers Association (PCBA)</strong>. All rights reserved.
                         </p>
                     </div>
                     <div class="col-md-6 text-center text-md-end">
-                        <p class="mb-0 text-muted fs-8">
+                        <p class="mb-0 text-white-50 fs-8">
                             Port Pipavav, Gujarat • Affiliated with FFFAI & FCBA • Trade Facilitation & Compliance
                         </p>
                     </div>

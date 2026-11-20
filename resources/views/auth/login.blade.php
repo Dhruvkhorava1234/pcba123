@@ -8,7 +8,7 @@
     </div>
 
     <!-- Quick Demo Credentials Banner -->
-    <div class="mb-5 p-3.5 rounded-xl bg-orange-50/80 border border-orange-200/90 text-slate-800 text-xs">
+    <!-- <div class="mb-5 p-3.5 rounded-xl bg-orange-50/80 border border-orange-200/90 text-slate-800 text-xs">
         <div class="flex items-center justify-between mb-2">
             <span class="font-bold text-orange-800 flex items-center gap-1.5">
                 <i class="bi bi-key-fill text-orange-600"></i> Dummy Member Login Credentials
@@ -21,7 +21,7 @@
             <div><strong>Email:</strong> <span class="select-all text-slate-900">member@pcbapipavav.org</span></div>
             <div><strong>Password:</strong> <span class="select-all text-slate-900">password123</span></div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -69,9 +69,9 @@
                     </a>
                 @endif
 
-                @if (Route::has('register'))
+                <!-- @if (Route::has('register'))
                     <span>Not enrolled yet? <a href="{{ route('register') }}" class="font-bold text-[#f25c3b] hover:underline">Register</a></span>
-                @endif
+                @endif -->
             </div>
         </div>
     </form>

@@ -244,6 +244,9 @@ class AdminDashboardController extends Controller
         $uploadedCount    = 0;
         $allowedExtensions = ['jpeg', 'jpg', 'png', 'gif', 'webp', 'svg', 'bmp', 'avif', 'ico', 'heic', 'heif', 'tiff', 'tif'];
 
+        $now = now();
+        $recordsToInsert = [];
+
         foreach ($images as $file) {
             if (!$file || !$file->isValid()) {
                 continue;
@@ -263,14 +266,20 @@ class AdminDashboardController extends Controller
             $filename = time() . '_' . uniqid() . '.' . $ext;
             $file->move(public_path('uploads/gallery'), $filename);
 
-            GalleryImage::create([
+            $recordsToInsert[] = [
                 'folder_id'  => $request->folder_id ?: null,
                 'title'      => $cleanTitle,
                 'category'   => $folderName,
                 'image_path' => 'uploads/gallery/' . $filename,
-            ]);
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
 
             $uploadedCount++;
+        }
+
+        if ($uploadedCount > 0) {
+            GalleryImage::insert($recordsToInsert);
         }
 
         if ($uploadedCount === 0) {
