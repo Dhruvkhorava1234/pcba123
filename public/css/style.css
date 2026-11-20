@@ -1353,7 +1353,10 @@ a {
   margin-bottom: 18px;
 }
 
-/* President Spotlight Section (Concentric Circles & Testimonial / Message Style) */
+/* ═══════════════════════════════════════════════════════════════
+   Leadership / Executive Committee Spotlight Section
+   ─ Fully responsive: fluid ring sizes via CSS custom properties
+   ═══════════════════════════════════════════════════════════════ */
 .president-spotlight-section {
   position: relative;
   overflow: hidden;
@@ -1361,22 +1364,114 @@ a {
   padding: 80px 0;
 }
 
+/* ── Leader row: extra breathing room between rows ── */
+.leader-row {
+  scroll-margin-top: 80px;
+}
+
+/* ── Divider between leader rows ── */
+.leader-divider {
+  border: none;
+  border-top: 1px solid rgba(100, 116, 139, 0.18);
+  margin: 0 0 3.5rem 0;
+}
+
+/* ── Info panel (right/left column) ── */
+.leader-info-panel {
+  padding: 0 0 0 8px;
+}
+@media (max-width: 991.98px) {
+  .leader-info-panel {
+    padding: 0;
+    text-align: center;
+  }
+}
+
+/* ── Name block ── */
+.leader-name-block { margin-top: 0.5rem; }
+
+.leader-role-badge {
+  display: inline-block;
+  background: rgba(242, 92, 59, 0.1);
+  color: var(--color-accent-orange);
+  border: 1px solid rgba(242, 92, 59, 0.3);
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  margin-bottom: 10px;
+}
+
+.leader-name {
+  font-family: var(--font-family-heading);
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 800;
+  color: #0b1a24;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.leader-org {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin-bottom: 1.25rem;
+}
+
+.leader-phone-link {
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-accent-orange);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 14px rgba(242, 92, 59, 0.3);
+}
+.leader-phone-link:hover {
+  background: #d63d1a;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(242, 92, 59, 0.38);
+}
+@media (max-width: 991.98px) {
+  .leader-phone-link { justify-content: center; width: 100%; max-width: 280px; margin: 0 auto; }
+}
+
+/* ══════════════════════════════════════════════
+   Concentric rings — fluid sizing via CSS vars
+   ══════════════════════════════════════════════ */
+:root {
+  --ring-size:    420px;
+  --ring-2-size:  350px;
+  --ring-1-size:  280px;
+  --disc-size:    260px;
+  --portrait-w:   230px;
+  --portrait-h:   290px;
+}
+
 .president-visual-col {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 440px;
+  min-height: calc(var(--ring-size) + 20px);
 }
 
-/* Concentric ripple rings */
 .concentric-rings-wrap {
   position: relative;
-  width: 420px;
-  height: 420px;
+  width:  var(--ring-size);
+  height: var(--ring-size);
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Never overflow the viewport on any device */
+  max-width: min(var(--ring-size), 90vw);
+  max-height: min(var(--ring-size), 90vw);
 }
 
 .concentric-ring {
@@ -1386,40 +1481,48 @@ a {
 }
 
 .ring-outer-3 {
-  width: 420px;
-  height: 420px;
+  width:  var(--ring-size);
+  height: var(--ring-size);
+  max-width: min(var(--ring-size), 90vw);
+  max-height: min(var(--ring-size), 90vw);
   border: 1px solid rgba(226, 232, 240, 0.85);
 }
 
 .ring-outer-2 {
-  width: 350px;
-  height: 350px;
+  width:  var(--ring-2-size);
+  height: var(--ring-2-size);
+  max-width: min(var(--ring-2-size), 75vw);
+  max-height: min(var(--ring-2-size), 75vw);
   border: 1px solid rgba(226, 232, 240, 0.95);
 }
 
 .ring-outer-1 {
-  width: 280px;
-  height: 280px;
+  width:  var(--ring-1-size);
+  height: var(--ring-1-size);
+  max-width: min(var(--ring-1-size), 60vw);
+  max-height: min(var(--ring-1-size), 60vw);
   border: 1px dashed rgba(242, 92, 59, 0.25);
 }
 
-/* Solid/Gradient Vibrant Orange Circle behind leader */
 .president-orange-disc {
   position: absolute;
-  width: 260px;
-  height: 260px;
+  width:  var(--disc-size);
+  height: var(--disc-size);
+  max-width: min(var(--disc-size), 55vw);
+  max-height: min(var(--disc-size), 55vw);
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #ff7350 0%, #f25c3b 65%, #d63d1a 100%);
   box-shadow: 0 16px 45px rgba(242, 92, 59, 0.35);
   z-index: 1;
 }
 
-/* President Portrait floating through circle */
 .president-floating-img-wrap {
   position: relative;
   z-index: 2;
-  width: 230px;
-  height: 290px;
+  width:  var(--portrait-w);
+  height: var(--portrait-h);
+  max-width: min(var(--portrait-w), 48vw);
+  max-height: min(var(--portrait-h), 61vw);
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 16px 36px rgba(15, 23, 42, 0.2);
@@ -1441,7 +1544,14 @@ a {
   display: block;
 }
 
-/* Right Content: Quote mark & Testimonial message */
+/* Show full image without cropping (e.g. landscape/square photos) */
+.img-wrap-contain .president-floating-img {
+  object-fit: contain;
+  object-position: center center;
+  background: #ffffff;
+}
+
+/* ── Quote block (President only) ── */
 .president-quote-mark {
   display: inline-flex;
   align-items: center;
@@ -1453,7 +1563,7 @@ a {
 }
 
 .president-quote-text {
-  font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
   font-weight: 500;
   line-height: 1.65;
   color: #1e293b;
@@ -1461,11 +1571,12 @@ a {
   letter-spacing: -0.01em;
 }
 
+/* ── Legacy lockup (President row only) ── */
 .president-author-lockup {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .president-author-avatar {
@@ -1569,15 +1680,17 @@ a {
   .bento-col-4 { grid-column: span 6; }
   .bento-col-6 { grid-column: span 6; }
   .bento-col-8 { grid-column: span 12; }
-  .concentric-rings-wrap {
-    width: 350px;
-    height: 350px;
+  /* President / Leadership section — XL */
+  .president-spotlight-section { padding: 70px 0; }
+  :root {
+    --ring-size:    350px;
+    --ring-2-size:  290px;
+    --ring-1-size:  235px;
+    --disc-size:    215px;
+    --portrait-w:   195px;
+    --portrait-h:   248px;
   }
-  .ring-outer-3 { width: 350px; height: 350px; }
-  .ring-outer-2 { width: 290px; height: 290px; }
-  .ring-outer-1 { width: 235px; height: 235px; }
-  .president-orange-disc { width: 215px; height: 215px; }
-  .president-floating-img-wrap { width: 195px; height: 250px; }
+  .president-visual-col { min-height: calc(var(--ring-size) + 20px); }
 }
 
 /* ── LG (992px - 1199px) ── */
@@ -1716,15 +1829,19 @@ a {
   .services-section { padding: 70px 0; }
   .bento-section { padding: 70px 0; }
 
-  /* President section */
+  /* President / Leadership section — LG */
   .president-spotlight-section { padding: 60px 0; }
+  :root {
+    --ring-size:    300px;
+    --ring-2-size:  248px;
+    --ring-1-size:  200px;
+    --disc-size:    185px;
+    --portrait-w:   165px;
+    --portrait-h:   210px;
+  }
   .president-visual-col { min-height: 320px; }
-  .concentric-rings-wrap { width: 300px; height: 300px; }
-  .ring-outer-3 { width: 300px; height: 300px; }
-  .ring-outer-2 { width: 248px; height: 248px; }
-  .ring-outer-1 { width: 200px; height: 200px; }
-  .president-orange-disc { width: 185px; height: 185px; }
-  .president-floating-img-wrap { width: 165px; height: 210px; }
+  .leader-info-panel { text-align: left; }
+  .leader-phone-link { justify-content: flex-start; width: auto; margin: 0; }
 
   /* Content boxes */
   .content-box { padding: 24px 20px; }
@@ -1799,20 +1916,20 @@ a {
   }
   .feature-title { font-size: 1.2rem; }
 
-  /* President section */
+  /* President / Leadership section — MD/SM */
   .president-spotlight-section { padding: 50px 0; }
-  .president-visual-col {
-    min-height: 260px;
-    margin-bottom: 32px;
+  :root {
+    --ring-size:    min(260px, 72vw);
+    --ring-2-size:  min(215px, 60vw);
+    --ring-1-size:  min(170px, 48vw);
+    --disc-size:    min(158px, 44vw);
+    --portrait-w:   min(140px, 38vw);
+    --portrait-h:   min(178px, 48vw);
   }
-  .concentric-rings-wrap { width: 250px; height: 250px; }
-  .ring-outer-3 { width: 250px; height: 250px; }
-  .ring-outer-2 { width: 205px; height: 205px; }
-  .ring-outer-1 { width: 165px; height: 165px; }
-  .president-orange-disc { width: 155px; height: 155px; }
-  .president-floating-img-wrap { width: 138px; height: 175px; }
+  .president-visual-col { min-height: 280px; margin-bottom: 24px; }
   .president-quote-text { font-size: 1.05rem; }
   .president-author-lockup { flex-wrap: wrap; }
+  .leader-divider { margin: 0 0 2.5rem 0; }
 
   /* Sections padding */
   .services-section { padding: 50px 0; }
@@ -1913,15 +2030,20 @@ a {
   .pillar-card { padding: 16px 14px; }
   .pillar-icon { width: 44px; height: 44px; font-size: 1.2rem; }
 
-  /* President section */
-  .concentric-rings-wrap { width: 200px; height: 200px; }
-  .ring-outer-3 { width: 200px; height: 200px; }
-  .ring-outer-2 { width: 165px; height: 165px; }
-  .ring-outer-1 { width: 132px; height: 132px; }
-  .president-orange-disc { width: 124px; height: 124px; }
-  .president-floating-img-wrap { width: 110px; height: 140px; border-radius: 12px; }
+  /* President / Leadership section — XS */
+  :root {
+    --ring-size:    min(220px, 68vw);
+    --ring-2-size:  min(182px, 56vw);
+    --ring-1-size:  min(145px, 45vw);
+    --disc-size:    min(135px, 42vw);
+    --portrait-w:   min(120px, 36vw);
+    --portrait-h:   min(152px, 46vw);
+  }
+  .president-floating-img-wrap { border-radius: 12px; }
+  .president-visual-col { min-height: 240px; }
   .president-quote-text { font-size: 0.97rem; line-height: 1.6; }
-  .president-visual-col { min-height: 220px; }
+  .leader-name { font-size: 1.5rem; }
+  .leader-divider { margin: 0 0 2rem 0; }
 
   /* Footer */
   .pcba-footer { padding: 38px 0 20px 0; }

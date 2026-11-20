@@ -406,62 +406,119 @@
     </div>
 </section>
 
-<!-- PRESIDENT'S SPOTLIGHT SECTION (MATCHING REFERENCE DESIGN) -->
+<!-- LEADERSHIP SPOTLIGHT SECTION -->
 <section class="president-spotlight-section border-top border-bottom border-secondary border-opacity-10" id="president">
     <div class="container">
-        <div class="row align-items-center g-5">
-            <!-- Left: Leader Portrait with Concentric Circles & Vibrant Orange Halo -->
-            <div class="col-lg-6">
+
+        <!-- Section Heading -->
+        <div class="text-center mb-5">
+            <div class="eyebrow-badge mb-2 mx-auto" style="background:rgba(242,92,59,0.1);color:var(--color-accent-orange);border:1px solid rgba(242,92,59,0.25);display:inline-block;">[ Leadership ]</div>
+            <h2 class="fw-bold" style="color:#0b1a24;">Our Executive Committee</h2>
+            <p class="text-muted mt-2 mb-0" style="max-width:520px;margin-left:auto;margin-right:auto;">The elected office-bearers guiding PCBA's mission at Pipavav Port.</p>
+        </div>
+
+        <!-- ROW 1: President — image left, quote right -->
+        <div class="leader-row row align-items-center g-4 g-lg-5 mb-5">
+            <div class="col-12 col-lg-6">
                 <div class="president-visual-col">
                     <div class="concentric-rings-wrap">
                         <div class="concentric-ring ring-outer-3"></div>
                         <div class="concentric-ring ring-outer-2"></div>
                         <div class="concentric-ring ring-outer-1"></div>
-                        
-                        <!-- Solid Vibrant Orange Focus Disc -->
                         <div class="president-orange-disc"></div>
-
-                        <!-- Portrait of President Pankaj Lodaya -->
                         <div class="president-floating-img-wrap">
-                            <img src="{{ asset('images/president.jpeg') }}" alt="Pankaj Lodaya - President, Pipavav Customs Brokers Association (PCBA)" class="president-floating-img">
+                            <img src="{{ asset('images/president.jpeg') }}"
+                                 alt="Pankaj Lodaya – President, PCBA"
+                                 class="president-floating-img">
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Right: Quote Mark, Testimonial/Message, Author Lockup & Dots Indicator -->
-            <div class="col-lg-6">
-                <div class="ps-lg-3">
-                    <!-- Stylized Quote Icon -->
-                    <div class="president-quote-mark">
-                        <i class="bi bi-quote"></i>
-                    </div>
-
-                    <!-- Leadership Quote Statement -->
+            <div class="col-12 col-lg-6">
+                <div class="leader-info-panel">
+                    <div class="president-quote-mark"><i class="bi bi-quote"></i></div>
                     <p class="president-quote-text">
                         "At PCBA, our focus is steadfast on championing the professional interests of Customs Brokers, ensuring robust compliance with Customs regulations, and fostering proactive collaboration between trade stakeholders, port authorities, and Customs administration."
                     </p>
-
-                    <!-- Author Lockup: Avatar & Identification -->
-                    <div class="president-author-lockup">
-                        <div class="president-author-avatar">
-                            <img src="{{ asset('images/president.jpeg') }}" alt="Pankaj Lodaya">
-                        </div>
-                        <div>
-                            <h4 class="president-author-name">Pankaj Lodaya</h4>
-                            <div class="president-author-title">President of PCBA</div>
-                        </div>
+                    <div class="leader-name-block">
+                        <span class="leader-role-badge">President</span>
+                        <h3 class="leader-name">Pankaj Lodaya</h3>
+                        <p class="leader-org">Pipavav Customs Brokers Association (PCBA)</p>
+                        <a href="tel:+919979898781" class="leader-phone-link">
+                            <i class="bi bi-telephone-fill me-2"></i>+91&nbsp;9909954697
+                        </a>
                     </div>
-
-                    <!-- Slider Pagination Dots (Matching Reference) -->
-                    <!-- <div class="president-slider-dots">
-                        <span class="president-dot active" title="President"></span>
-                        <span class="president-dot" title="Executive Committee"></span>
-                        <span class="president-dot" title="Association Secretariat"></span>
-                    </div> -->
                 </div>
             </div>
         </div>
+
+        <div class="leader-divider"></div>
+
+        <!-- ROW 2: Vice President  — image right on desktop -->
+        <div class="leader-row row align-items-center g-4 g-lg-5 mb-5 flex-lg-row-reverse">
+            <div class="col-12 col-lg-6">
+                <div class="president-visual-col">
+                    <div class="concentric-rings-wrap">
+                        <div class="concentric-ring ring-outer-3"></div>
+                        <div class="concentric-ring ring-outer-2"></div>
+                        <div class="concentric-ring ring-outer-1"></div>
+                        <div class="president-orange-disc"></div>
+                        <div class="president-floating-img-wrap img-wrap-contain">
+                            <img src="{{ asset('images/alpesh-makdiya.jpg') }}"
+                                 alt="Alpesh Makdiya – Vice President, PCBA"
+                                 class="president-floating-img">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="leader-info-panel">
+                    <div class="leader-name-block">
+                        <span class="leader-role-badge">Vice President</span>
+                        <h3 class="leader-name">Alpesh Makdiya <span style="font-weight:500;color:#64748b;">(Patel)</span></h3>
+                        <p class="leader-org">Pipavav Customs Brokers Association (PCBA)</p>
+                        <a href="tel:+919574878211" class="leader-phone-link">
+                            <i class="bi bi-telephone-fill me-2"></i>+91&nbsp;9574878211
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="leader-divider"></div>
+
+        <!-- ROW 3: Secretary - image left -->
+        <div class="leader-row row align-items-center g-4 g-lg-5">
+            <div class="col-12 col-lg-6">
+                <div class="president-visual-col">
+                    <div class="concentric-rings-wrap">
+                        <div class="concentric-ring ring-outer-3"></div>
+                        <div class="concentric-ring ring-outer-2"></div>
+                        <div class="concentric-ring ring-outer-1"></div>
+                        <div class="president-orange-disc"></div>
+                        <div class="president-floating-img-wrap">
+                            <img src="{{ asset('images/ketan-ganatra.jpg') }}"
+                                 alt="Ketan Ganatra - Treasurer, PCBA"
+                                 class="president-floating-img">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="leader-info-panel">
+                    <div class="leader-name-block">
+                        <span class="leader-role-badge">Treasurer</span>
+                        <h3 class="leader-name">Ketan Ganatra</h3>
+                        <p class="leader-org">Pipavav Customs Brokers Association (PCBA)</p>
+                        <a href="tel:+919979898781" class="leader-phone-link">
+                            <i class="bi bi-telephone-fill me-2"></i>+91&nbsp;9979898781
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </section>
 
